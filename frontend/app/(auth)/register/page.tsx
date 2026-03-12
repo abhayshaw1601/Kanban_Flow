@@ -109,174 +109,206 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-lg">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-          <CardDescription>
-            Enter your information to get started
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Personal Information */}
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={isLoading}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                Password must be at least 8 characters
-              </p>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg">
+        {/* Logo/Brand */}
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-block">
+            <h1 className="text-3xl font-bold text-primary hover:opacity-80 transition-opacity">
+              KanbanFlow
+            </h1>
+          </Link>
+          <p className="text-muted-foreground mt-2">Create your account and get started</p>
+        </div>
 
-            {/* Role Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <Select value={role} onValueChange={setRole} disabled={isLoading}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="employee">Employee</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Company Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="company-option">Company</Label>
-              <Select value={companyOption} onValueChange={setCompanyOption} disabled={isLoading || isLoadingCompanies}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose company option" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="existing">Join existing company</SelectItem>
-                  <SelectItem value="new">Create new company</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Existing Company Selection */}
-            {companyOption === 'existing' && (
+        <Card className="shadow-soft border-0">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-2xl font-semibold">Create Account</CardTitle>
+            <CardDescription>
+              Enter your information to get started with KanbanFlow
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Personal Information */}
               <div className="space-y-2">
-                <Label htmlFor="existing-company">Select Company</Label>
-                <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId} disabled={isLoading}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a company" />
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={isLoading}
+                  required
+                  className="h-11"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  required
+                  className="h-11"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Create a strong password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  required
+                  className="h-11"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Password must be at least 8 characters
+                </p>
+              </div>
+
+              {/* Role Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="role">Your Role</Label>
+                <Select value={role} onValueChange={setRole} disabled={isLoading}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent>
-                    {companies.map((company) => (
-                      <SelectItem key={company.id} value={company.id.toString()}>
-                        <div>
-                          <div className="font-medium">{company.name}</div>
-                          <div className="text-xs text-muted-foreground">ID: {company.company_id}</div>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="employee">Employee</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            )}
 
-            {/* New Company Creation */}
-            {companyOption === 'new' && (
-              <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
-                <h4 className="font-medium">Create New Company</h4>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="company-name">Company Name</Label>
-                  <Input
-                    id="company-name"
-                    type="text"
-                    placeholder="Acme Corporation"
-                    value={newCompanyName}
-                    onChange={(e) => setNewCompanyName(e.target.value)}
-                    disabled={isLoading}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="company-id">Company ID</Label>
-                  <Input
-                    id="company-id"
-                    type="text"
-                    placeholder="acme-corp"
-                    value={newCompanyId}
-                    onChange={(e) => setNewCompanyId(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                    disabled={isLoading}
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Unique identifier for your company (lowercase, letters, numbers, and hyphens only)
-                  </p>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="company-description">Company Description (Optional)</Label>
-                  <Textarea
-                    id="company-description"
-                    placeholder="Brief description of your company"
-                    value={newCompanyDescription}
-                    onChange={(e) => setNewCompanyDescription(e.target.value)}
-                    disabled={isLoading}
-                    rows={3}
-                  />
-                </div>
+              {/* Company Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="company-option">Company Setup</Label>
+                <Select value={companyOption} onValueChange={setCompanyOption} disabled={isLoading || isLoadingCompanies}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Choose company option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="existing">Join existing company</SelectItem>
+                    <SelectItem value="new">Create new company</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            )}
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Creating account...' : 'Create account'}
-            </Button>
-          </form>
-          
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
-            <Link href="/login" className="text-primary hover:underline">
-              Sign in
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+              {/* Existing Company Selection */}
+              {companyOption === 'existing' && (
+                <div className="space-y-2">
+                  <Label htmlFor="existing-company">Select Company</Label>
+                  <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId} disabled={isLoading}>
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Choose a company" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {companies.map((company) => (
+                        <SelectItem key={company.id} value={company.id.toString()}>
+                          <div>
+                            <div className="font-medium">{company.name}</div>
+                            <div className="text-xs text-muted-foreground">ID: {company.company_id}</div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* New Company Creation */}
+              {companyOption === 'new' && (
+                <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                  <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Create New Company</h4>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="company-name">Company Name</Label>
+                    <Input
+                      id="company-name"
+                      type="text"
+                      placeholder="Acme Corporation"
+                      value={newCompanyName}
+                      onChange={(e) => setNewCompanyName(e.target.value)}
+                      disabled={isLoading}
+                      required
+                      className="h-11"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="company-id">Company ID</Label>
+                    <Input
+                      id="company-id"
+                      type="text"
+                      placeholder="acme-corp"
+                      value={newCompanyId}
+                      onChange={(e) => setNewCompanyId(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                      disabled={isLoading}
+                      required
+                      className="h-11"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Unique identifier (lowercase, letters, numbers, and hyphens only)
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="company-description">Company Description (Optional)</Label>
+                    <Textarea
+                      id="company-description"
+                      placeholder="Brief description of your company"
+                      value={newCompanyDescription}
+                      onChange={(e) => setNewCompanyDescription(e.target.value)}
+                      disabled={isLoading}
+                      rows={3}
+                      className="resize-none"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full h-11 text-base font-medium"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Creating account...' : 'Create account'}
+              </Button>
+            </form>
+            
+            <div className="mt-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                Already have an account?{' '}
+                <Link 
+                  href="/login" 
+                  className="text-primary hover:underline font-medium"
+                >
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="mt-8 text-center">
+          <Link 
+            href="/" 
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Back to home
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

@@ -56,3 +56,5 @@ export { Avatar, AvatarImage, AvatarFallback } from './avatar';
 export { Badge, badgeVariants } from './badge';
 export { Calendar } from './calendar';
 export { Popover, PopoverTrigger, PopoverContent } from './popover';
+export { Skeleton } from './skeleton';
+export { Loading, LoadingSpinner } from './loading';
