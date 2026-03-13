@@ -1,24 +1,37 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+'use client';
+
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { LordIcon } from '@/components/ui/lord-icon';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
+      <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-primary">KanbanFlow</h1>
+            <div className="flex items-center space-x-2">
+              <LordIcon
+                src="https://cdn.lordicon.com/wuvorxbv.json"
+                trigger="hover"
+                colors="primary:#3b82f6,secondary:#1e40af"
+                size={32}
+              />
+              <h1 className="text-xl font-semibold text-foreground">KanbanFlow</h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               <Link href="/login">
-                <Button variant="ghost">Login</Button>
+                <Button variant="ghost" className="btn-ghost">
+                  Sign In
+                </Button>
               </Link>
               <Link href="/register">
-                <Button>Get Started</Button>
+                <Button className="btn-primary">
+                  Get Started
+                </Button>
               </Link>
             </div>
           </div>
@@ -26,170 +39,341 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <Badge variant="secondary" className="mb-4">
-            Project Management Made Simple
-          </Badge>
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-            Streamline Your
-            <span className="text-primary block">Workflow</span>
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-            KanbanFlow is a powerful, intuitive project management tool that helps teams organize, 
-            track, and deliver projects efficiently using the proven Kanban methodology.
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-subtle"></div>
+        <div className="relative max-w-7xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto">
+            <Badge variant="secondary" className="mb-6 animate-fade-in">
+              <LordIcon
+                src="https://cdn.lordicon.com/jvucoldz.json"
+                trigger="hover"
+                colors="primary:#3b82f6"
+                size={16}
+                className="mr-2"
+              />
+              Trusted by 10,000+ teams worldwide
+            </Badge>
+            
+            <h1 className="text-display text-5xl md:text-6xl lg:text-7xl font-normal text-foreground mb-6 animate-slide-up text-balance">
+              Project management
+              <span className="block text-primary">made simple</span>
+            </h1>
+            
+            <p className="text-body text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in text-pretty">
+              Transform your team's workflow with intuitive Kanban boards, powerful collaboration tools, and real-time insights that drive results.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-scale-in">
+              <Link href="/register">
+                <Button size="lg" className="btn-primary text-lg px-8 py-4 h-auto">
+                  <LordIcon
+                    src="https://cdn.lordicon.com/jgnvfzqg.json"
+                    trigger="hover"
+                    colors="primary:#ffffff"
+                    size={20}
+                    className="mr-2"
+                  />
+                  Start free trial
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-auto interactive">
+                  <LordIcon
+                    src="https://cdn.lordicon.com/hrjifpbq.json"
+                    trigger="hover"
+                    colors="primary:#3b82f6"
+                    size={20}
+                    className="mr-2"
+                  />
+                  Watch demo
+                </Button>
+              </Link>
+            </div>
+            
+            <p className="text-sm text-muted-foreground mt-4 animate-fade-in">
+              No credit card required • 14-day free trial • Cancel anytime
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Logo Bar */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 border-t bg-muted/30">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-center text-sm text-muted-foreground mb-8">
+            Trusted by leading companies worldwide
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/register">
-              <Button size="lg" className="text-lg px-8 py-3">
-                Start Free Trial
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button variant="outline" size="lg" className="text-lg px-8 py-3">
-                Sign In
-              </Button>
-            </Link>
+          <div className="flex justify-center items-center space-x-12 opacity-60">
+            <div className="text-2xl font-bold text-muted-foreground">Acme Corp</div>
+            <div className="text-2xl font-bold text-muted-foreground">TechFlow</div>
+            <div className="text-2xl font-bold text-muted-foreground">InnovateLab</div>
+            <div className="text-2xl font-bold text-muted-foreground">DataSync</div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50 dark:bg-gray-800/50">
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Everything You Need to Succeed
+            <Badge variant="outline" className="mb-4">
+              Features
+            </Badge>
+            <h2 className="text-display text-4xl md:text-5xl font-normal text-foreground mb-6 text-balance">
+              Everything you need to
+              <span className="block text-primary">succeed together</span>
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Powerful features designed to help your team collaborate effectively and deliver results.
+            <p className="text-body text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
+              Powerful features designed to streamline your workflow and boost team productivity.
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
+            <Card className="card-elevated group">
+              <CardContent className="p-8">
+                <div className="mb-6">
+                  <LordIcon
+                    src="https://cdn.lordicon.com/wuvorxbv.json"
+                    trigger="hover"
+                    colors="primary:#3b82f6,secondary:#1e40af"
+                    size={48}
+                  />
                 </div>
-                <CardTitle>Visual Task Management</CardTitle>
-                <CardDescription>
-                  Organize tasks with intuitive drag-and-drop Kanban boards that make workflow visualization effortless.
-                </CardDescription>
-              </CardHeader>
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  Visual Kanban Boards
+                </h3>
+                <p className="text-muted-foreground text-pretty">
+                  Organize tasks with intuitive drag-and-drop boards that make workflow visualization effortless and engaging.
+                </p>
+              </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
+            <Card className="card-elevated group">
+              <CardContent className="p-8">
+                <div className="mb-6">
+                  <LordIcon
+                    src="https://cdn.lordicon.com/dxjqoygy.json"
+                    trigger="hover"
+                    colors="primary:#10b981,secondary:#059669"
+                    size={48}
+                  />
                 </div>
-                <CardTitle>Team Collaboration</CardTitle>
-                <CardDescription>
-                  Invite team members, assign tasks, and collaborate seamlessly with real-time updates and notifications.
-                </CardDescription>
-              </CardHeader>
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  Real-time Collaboration
+                </h3>
+                <p className="text-muted-foreground text-pretty">
+                  Work together seamlessly with live updates, comments, and notifications that keep everyone in sync.
+                </p>
+              </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
+            <Card className="card-elevated group">
+              <CardContent className="p-8">
+                <div className="mb-6">
+                  <LordIcon
+                    src="https://cdn.lordicon.com/qhviklyi.json"
+                    trigger="hover"
+                    colors="primary:#f59e0b,secondary:#d97706"
+                    size={48}
+                  />
                 </div>
-                <CardTitle>Progress Tracking</CardTitle>
-                <CardDescription>
-                  Monitor project progress with detailed analytics and reporting to keep your team on track.
-                </CardDescription>
-              </CardHeader>
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  Advanced Analytics
+                </h3>
+                <p className="text-muted-foreground text-pretty">
+                  Track progress with detailed insights and reports that help you make data-driven decisions.
+                </p>
+              </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
+            <Card className="card-elevated group">
+              <CardContent className="p-8">
+                <div className="mb-6">
+                  <LordIcon
+                    src="https://cdn.lordicon.com/kbtmbyzy.json"
+                    trigger="hover"
+                    colors="primary:#ef4444,secondary:#dc2626"
+                    size={48}
+                  />
                 </div>
-                <CardTitle>Secure & Reliable</CardTitle>
-                <CardDescription>
-                  Enterprise-grade security with role-based access control and data protection you can trust.
-                </CardDescription>
-              </CardHeader>
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  Enterprise Security
+                </h3>
+                <p className="text-muted-foreground text-pretty">
+                  Bank-level security with role-based access control and data encryption you can trust.
+                </p>
+              </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
+            <Card className="card-elevated group">
+              <CardContent className="p-8">
+                <div className="mb-6">
+                  <LordIcon
+                    src="https://cdn.lordicon.com/jgnvfzqg.json"
+                    trigger="hover"
+                    colors="primary:#8b5cf6,secondary:#7c3aed"
+                    size={48}
+                  />
                 </div>
-                <CardTitle>Lightning Fast</CardTitle>
-                <CardDescription>
-                  Built for speed with modern technology stack ensuring smooth performance even with large projects.
-                </CardDescription>
-              </CardHeader>
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  Lightning Fast
+                </h3>
+                <p className="text-muted-foreground text-pretty">
+                  Built for speed with modern architecture ensuring smooth performance at any scale.
+                </p>
+              </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+            <Card className="card-elevated group">
+              <CardContent className="p-8">
+                <div className="mb-6">
+                  <LordIcon
+                    src="https://cdn.lordicon.com/nocovwne.json"
+                    trigger="hover"
+                    colors="primary:#06b6d4,secondary:#0891b2"
+                    size={48}
+                  />
                 </div>
-                <CardTitle>Customizable</CardTitle>
-                <CardDescription>
-                  Adapt KanbanFlow to your workflow with customizable boards, columns, and task templates.
-                </CardDescription>
-              </CardHeader>
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  Smart Automation
+                </h3>
+                <p className="text-muted-foreground text-pretty">
+                  Automate repetitive tasks and workflows to focus on what matters most to your business.
+                </p>
+              </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-muted/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <Badge variant="outline" className="mb-4">
+              How it works
+            </Badge>
+            <h2 className="text-display text-4xl md:text-5xl font-normal text-foreground mb-6 text-balance">
+              Get started in
+              <span className="block text-primary">three simple steps</span>
+            </h2>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="text-center">
+              <div className="mb-6 flex justify-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                  <LordIcon
+                    src="https://cdn.lordicon.com/jvucoldz.json"
+                    trigger="hover"
+                    colors="primary:#3b82f6"
+                    size={32}
+                  />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-3">
+                1. Create your workspace
+              </h3>
+              <p className="text-muted-foreground text-pretty">
+                Set up your team workspace in seconds with our intuitive onboarding process.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="mb-6 flex justify-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                  <LordIcon
+                    src="https://cdn.lordicon.com/dxjqoygy.json"
+                    trigger="hover"
+                    colors="primary:#3b82f6"
+                    size={32}
+                  />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-3">
+                2. Invite your team
+              </h3>
+              <p className="text-muted-foreground text-pretty">
+                Add team members and start collaborating with powerful permission controls.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="mb-6 flex justify-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                  <LordIcon
+                    src="https://cdn.lordicon.com/qhviklyi.json"
+                    trigger="hover"
+                    colors="primary:#3b82f6"
+                    size={32}
+                  />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-3">
+                3. Track progress
+              </h3>
+              <p className="text-muted-foreground text-pretty">
+                Monitor your team's progress with real-time updates and detailed analytics.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Ready to Transform Your Workflow?
+          <h2 className="text-display text-4xl md:text-5xl font-normal text-foreground mb-6 text-balance">
+            Ready to transform
+            <span className="block text-primary">your workflow?</span>
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+          <p className="text-body text-xl text-muted-foreground mb-8 text-pretty">
             Join thousands of teams already using KanbanFlow to deliver projects faster and more efficiently.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link href="/register">
-              <Button size="lg" className="text-lg px-8 py-3">
-                Start Your Free Trial
+              <Button size="lg" className="btn-primary text-lg px-8 py-4 h-auto">
+                <LordIcon
+                  src="https://cdn.lordicon.com/jgnvfzqg.json"
+                  trigger="hover"
+                  colors="primary:#ffffff"
+                  size={20}
+                  className="mr-2"
+                />
+                Start your free trial
               </Button>
             </Link>
             <Link href="/login">
-              <Button variant="outline" size="lg" className="text-lg px-8 py-3">
-                Sign In to Your Account
+              <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-auto interactive">
+                Sign in to your account
               </Button>
             </Link>
           </div>
+          <p className="text-sm text-muted-foreground mt-4">
+            No credit card required • 14-day free trial • Cancel anytime
+          </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">KanbanFlow</h3>
-            <p className="text-gray-600 dark:text-gray-300">
+      <footer className="border-t bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center space-x-2 mb-4 md:mb-0">
+              <LordIcon
+                src="https://cdn.lordicon.com/wuvorxbv.json"
+                trigger="hover"
+                colors="primary:#3b82f6,secondary:#1e40af"
+                size={24}
+              />
+              <span className="text-lg font-semibold text-foreground">KanbanFlow</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
               © 2026 KanbanFlow. Built with modern web technologies.
             </p>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }
