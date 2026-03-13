@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Task Analyzer - Powered by Gemini</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .gemini-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        
+        .input-section {
+            padding: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        textarea, input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        input {
+            min-height: 50px;
+        }
+        
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .analyze-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results {
+            padding: 30px;
+            border-top: 1px solid #e2e8f0;
+            display: none;
+        }
+        
+        .analysis-header {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .domain-badge { background: #e6fffa; color: #234e52; }
+        .complexity-low { background: #c6f6d5; color: #22543d; }
+        .complexity-medium { background: #fef5e7; color: #744210; }
+        .complexity-high { background: #fed7d7; color: #742a2a; }
+        .confidence-badge { background: #ebf4ff; color: #2a4365; }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section ul {
+            list-style: none;
+        }
+        
+        .section li {
+            background: #f7fafc;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s;
+        }
+        
+        .section li:hover {
+            transform: translateX(5px);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .examples {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .examples h4 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .example-item {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .example-item:hover {
+            background: #edf2f7;
+        }
+        
+        @media (max-width: 768px) {
+            .analysis-header {
+                flex-direction: column;
+            }
+            
+            .badge {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Task Analyzer</h1>
+            <p>Transform vague prompts into structured technical tasks</p>
+            <div class="gemini-badge">✨ Powered by Google Gemini AI</div>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="prompt">Task Description:</label>
+                <textarea 
+                    id="prompt" 
+                    placeholder="Enter your vague task description here... (e.g., 'make the login better', 'fix the dashboard', 'add user management')"
+                ></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label for="context">Project Context (Optional):</label>
+                <input 
+                    type="text"
+                    id="context" 
+                    placeholder="e.g., React + Node.js app, e-commerce platform, mobile app..."
+                />
+            </div>
+            
+            <button class="analyze-btn" onclick="analyzeTask()">
+                <span>🧠</span>
+                <span>Analyze with AI</span>
+            </button>
+            
+            <div class="examples">
+                <h4>💡 Try these examples:</h4>
+                <div class="example-item" onclick="setExample('make the login better')">
+                    "make the login better"
+                </div>
+                <div class="example-item" onclick="setExample('fix dashboard performance issues')">
+                    "fix dashboard performance issues"
+                </div>
+                <div class="example-item" onclick="setExample('add real-time notifications')">
+                    "add real-time notifications"
+                </div>
+                <div class="example-item" onclick="setExample('implement user management system')">
+                    "implement user management system"
+                </div>
+            </div>
+        </div>
+        
+        <div id="results" class="results">
+            <!-- Results will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        function setExample(text) {
+            document.getElementById('prompt').value = text;
+        }
+        
+        async function analyzeTask() {
+            const prompt = document.getElementById('prompt').value.trim();
+            const context = document.getElementById('context').value.trim();
+            const resultsDiv = document.getElementById('results');
+            const button = document.querySelector('.analyze-btn');
+            
+            if (!prompt) {
+                alert('Please enter a task description');
+                return;
+            }
+            
+            // Show loading state
+            button.disabled = true;
+            button.innerHTML = '<div class="loading-spinner"></div><span>AI is thinking...</span>';
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    🧠 Gemini AI is analyzing your prompt...
+                    <br><small>This may take a few seconds</small>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt, context })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data.analysis);
+                } else {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<span>🧠</span><span>Analyze with AI</span>';
+            }
+        }
+        
+        function displayResults(analysis) {
+            const complexityClass = `complexity-${analysis.estimated_complexity}`;
+            const confidencePercent = Math.round(analysis.confidence_score * 100);
+            
+            const html = `
+                <div class="analysis-header">
+                    <div class="badge domain-badge">
+                        🎯 ${analysis.domain.toUpperCase()}
+                    </div>
+                    <div class="badge ${complexityClass}">
+                        📊 ${analysis.estimated_complexity.toUpperCase()}
+                    </div>
+                    <div class="badge confidence-badge">
+                        🎲 ${confidencePercent}% Confidence
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>📋 Technical Sub-Tasks</h3>
+                    <ul>
+                        ${analysis.technical_subtasks.map(task => `<li>${task}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <h3>✅ Acceptance Criteria</h3>
+                    <ul>
+                        ${analysis.acceptance_criteria.map(criteria => `<li>${criteria}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <h3>⚠️ Potential Blockers</h3>
+                    <ul>
+                        ${analysis.potential_blockers.map(blocker => `<li>${blocker}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('results').innerHTML = html;
+        }
+        
+        // Allow Enter key to submit (with Ctrl/Cmd)
+        document.getElementById('prompt').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                analyzeTask();
+            }
+        });
+        
+        // Auto-resize textarea
+        document.getElementById('prompt').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    </script>
+</body>
+</html>

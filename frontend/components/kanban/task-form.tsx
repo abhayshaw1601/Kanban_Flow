@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, User } from 'lucide-react';
+import { Calendar, User, Brain, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
 import { useBoardMembers } from '@/hooks/use-board-members';
 import { useCreateTask } from '@/hooks/use-tasks';
+import { useAnalyzeTask, useAIAnalyzerHealth } from '@/hooks/use-ai-analyzer';
+import { aiAnalyzer } from '@/lib/ai-analyzer';
 import type { Column } from '@/hooks/use-board';
 
 // Dynamically import markdown editor to avoid SSR issues
@@ -30,6 +32,8 @@ interface TaskFormProps {
 export function TaskForm({ boardId, columns, defaultColumnId, isOpen, onClose }: TaskFormProps) {
   const { data: members = [] } = useBoardMembers(boardId);
   const createTask = useCreateTask();
+  const analyzeTask = useAnalyzeTask();
+  const { data: isAIHealthy = false } = useAIAnalyzerHealth();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -40,6 +44,11 @@ export function TaskForm({ boardId, columns, defaultColumnId, isOpen, onClose }:
     assignee_id: null as number | null,
   });
 
+  const [useAIEnhancement, setUseAIEnhancement] = useState(false);
+
+  const isHighPriority = formData.priority === 'high';
+  const canUseAI = isAIHealthy && isHighPriority;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -49,9 +58,28 @@ export function TaskForm({ boardId, columns, defaultColumnId, isOpen, onClose }:
     }
 
     try {
+      let taskDescription = formData.description;
+
+      // If AI enhancement is enabled and it's a high priority task
+      if (useAIEnhancement && canUseAI && formData.title.trim()) {
+        try {
+          const context = `Kanban board task management system. Board has columns: ${columns.map(c => c.name).join(', ')}`;
+          const analysis = await analyzeTask.mutateAsync({
+            prompt: formData.title,
+            context: context + (formData.description ? `\n\nInitial description: ${formData.description}` : ''),
+          });
+
+          taskDescription = aiAnalyzer.formatAnalysisAsMarkdown(analysis, formData.title);
+          toast.success('Task enhanced with AI analysis!');
+        } catch (error) {
+          console.error('AI enhancement failed:', error);
+          toast.warning('AI enhancement failed, creating task without AI analysis');
+        }
+      }
+
       const taskData: any = {
         title: formData.title.trim(),
-        description: formData.description || null,
+        description: taskDescription || null,
         priority: formData.priority,
         column_id: formData.column_id,
         assignee_id: formData.assignee_id,
@@ -75,6 +103,7 @@ export function TaskForm({ boardId, columns, defaultColumnId, isOpen, onClose }:
         column_id: defaultColumnId || columns[0]?.id || 0,
         assignee_id: null,
       });
+      setUseAIEnhancement(false);
       
       onClose();
     } catch (error: any) {
@@ -93,6 +122,7 @@ export function TaskForm({ boardId, columns, defaultColumnId, isOpen, onClose }:
       column_id: defaultColumnId || columns[0]?.id || 0,
       assignee_id: null,
     });
+    setUseAIEnhancement(false);
     onClose();
   };
 
@@ -173,6 +203,35 @@ export function TaskForm({ boardId, columns, defaultColumnId, isOpen, onClose }:
             </div>
           </div>
 
+          {/* AI Enhancement Option - Only show for high priority tasks */}
+          {canUseAI && (
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-700">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <Brain className="w-5 h-5 text-purple-600" />
+                  <span className="font-medium text-purple-800 dark:text-purple-300">AI Enhancement</span>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useAIEnhancement}
+                    onChange={(e) => setUseAIEnhancement(e.target.checked)}
+                    className="rounded border-purple-300 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="text-sm text-purple-700 dark:text-purple-300">
+                    Auto-enhance with AI analysis
+                  </span>
+                </label>
+              </div>
+              {useAIEnhancement && (
+                <p className="text-xs text-purple-600 dark:text-purple-400 mt-2 bg-purple-100 dark:bg-purple-900/30 p-2 rounded">
+                  <Sparkles className="w-3 h-3 inline mr-1" />
+                  AI will automatically analyze your high-priority task and add structured breakdown, acceptance criteria, and potential blockers.
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Due Date */}
           <div className="space-y-2">
             <Label htmlFor="due_date">Due Date</Label>
@@ -231,9 +290,27 @@ export function TaskForm({ boardId, columns, defaultColumnId, isOpen, onClose }:
             </Button>
             <Button
               type="submit"
-              disabled={createTask.isPending || !formData.title.trim()}
+              disabled={createTask.isPending || analyzeTask.isPending || !formData.title.trim()}
             >
-              {createTask.isPending ? 'Creating...' : 'Create Task'}
+              {createTask.isPending || analyzeTask.isPending ? (
+                <>
+                  {analyzeTask.isPending ? (
+                    <>
+                      <Brain className="w-4 h-4 mr-2 animate-pulse" />
+                      AI Analyzing...
+                    </>
+                  ) : (
+                    'Creating...'
+                  )}
+                </>
+              ) : (
+                <>
+                  {useAIEnhancement && canUseAI && (
+                    <Sparkles className="w-4 h-4 mr-2" />
+                  )}
+                  Create Task
+                </>
+              )}
             </Button>
           </div>
         </form>

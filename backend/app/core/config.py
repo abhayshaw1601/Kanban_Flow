@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     # Cookie Security (disable in tests)
     COOKIE_SECURE: bool = True
     
+    # AI Configuration (optional)
+    GEMINI_API_KEY: str = ""
+    
     class Config:
         env_file = ".env"
         case_sensitive = True
