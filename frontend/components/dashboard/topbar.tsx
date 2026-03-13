@@ -101,13 +101,13 @@ export function TopBar({ userName, userEmail, userAvatar, onMenuClick }: TopBarP
 
   return (
     <>
-      <header className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center px-4 gap-4">
+      <header className="sticky top-0 z-30 w-full glass-nav border-b border-white/10">
+        <div className="flex h-16 items-center px-6 gap-4">
           {/* Mobile menu button */}
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="lg:hidden hover:bg-white/10 transition-colors duration-200"
             onClick={onMenuClick}
           >
             <Menu className="h-5 w-5" />
@@ -121,15 +121,15 @@ export function TopBar({ userName, userEmail, userAvatar, onMenuClick }: TopBarP
             <Button
               variant="ghost"
               onClick={() => setShowAssignedTasksModal(true)}
-              className="flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 bg-electric-blue-500/20 border border-electric-blue-500/30 rounded-xl hover:bg-electric-blue-500/30 transition-all duration-300 backdrop-blur-sm"
               title="View all your assigned tasks"
             >
-              <ClipboardList className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              <ClipboardList className="h-4 w-4 text-electric-blue-400" />
+              <span className="text-sm font-medium text-electric-blue-300 tracking-tight">
                 My Tasks
               </span>
               {assignedTasksData && (
-                <Badge className="bg-blue-600 text-white text-xs px-1.5 py-0.5">
+                <Badge className="bg-electric-blue-600 text-white text-xs px-2 py-1 rounded-full">
                   {assignedTasksData.statistics.total_tasks}
                 </Badge>
               )}
@@ -142,44 +142,44 @@ export function TopBar({ userName, userEmail, userAvatar, onMenuClick }: TopBarP
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex items-center gap-2 px-3 py-1 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/30 rounded-xl hover:bg-red-500/30 transition-all duration-300 backdrop-blur-sm animate-pulse"
                   title="Click to view your blocked tasks"
                 >
-                  <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
-                  <span className="text-sm font-medium text-red-700 dark:text-red-300">
+                  <AlertTriangle className="h-4 w-4 text-red-400" />
+                  <span className="text-sm font-medium text-red-300 tracking-tight">
                     {totalBlocked} Blocked Task{totalBlocked > 1 ? 's' : ''}
                   </span>
-                  <Badge className="bg-red-600 text-white text-xs px-1.5 py-0.5">
+                  <Badge className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">
                     {totalBlocked}
                   </Badge>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-80" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
+              <DropdownMenuContent className="w-80 modal-glass border border-white/20 rounded-xl" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal p-4">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none text-red-700 dark:text-red-300">
+                    <p className="text-sm font-semibold leading-none text-red-400 tracking-tight">
                       🚨 Blocked Tasks ({totalBlocked})
                     </p>
-                    <p className="text-xs leading-none text-red-600 dark:text-red-400">
+                    <p className="text-xs leading-none text-red-400/80">
                       These tasks need immediate attention
                     </p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-white/10" />
                 
                 {/* Show first 3 blocked tasks */}
                 {blockedTasks.slice(0, 3).map((task) => (
                   <DropdownMenuItem
                     key={task.task_id}
                     onClick={() => handleViewSpecificTask(task.task_id, task.board_name)}
-                    className="cursor-pointer flex-col items-start p-3 h-auto"
+                    className="cursor-pointer flex-col items-start p-4 h-auto hover:bg-white/5 transition-colors duration-200"
                   >
                     <div className="flex items-center justify-between w-full">
-                      <span className="font-medium text-sm truncate flex-1">
+                      <span className="font-medium text-sm truncate flex-1 text-foreground">
                         {task.title}
                       </span>
                       {task.is_overdue && (
-                        <Badge className="bg-red-100 text-red-800 text-xs ml-2">
+                        <Badge className="bg-red-500/20 text-red-400 text-xs ml-2 border border-red-500/30">
                           OVERDUE
                         </Badge>
                       )}
@@ -188,7 +188,7 @@ export function TopBar({ userName, userEmail, userAvatar, onMenuClick }: TopBarP
                       {task.board_name} • {task.column_name}
                     </div>
                     {task.blocker_reason && (
-                      <div className="text-xs text-red-600 dark:text-red-400 mt-1">
+                      <div className="text-xs text-red-400 mt-1">
                         {task.blocker_reason}
                       </div>
                     )}
@@ -197,10 +197,10 @@ export function TopBar({ userName, userEmail, userAvatar, onMenuClick }: TopBarP
                 
                 {blockedTasks.length > 3 && (
                   <>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="bg-white/10" />
                     <DropdownMenuItem
                       onClick={handleViewAllBlockedTasks}
-                      className="cursor-pointer text-center justify-center text-red-600 dark:text-red-400 font-medium"
+                      className="cursor-pointer text-center justify-center text-red-400 font-medium hover:bg-white/5 transition-colors duration-200"
                     >
                       View All {totalBlocked} Blocked Tasks →
                     </DropdownMenuItem>
@@ -209,10 +209,10 @@ export function TopBar({ userName, userEmail, userAvatar, onMenuClick }: TopBarP
                 
                 {blockedTasks.length <= 3 && (
                   <>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="bg-white/10" />
                     <DropdownMenuItem
                       onClick={handleViewAllBlockedTasks}
-                      className="cursor-pointer text-center justify-center text-red-600 dark:text-red-400 font-medium"
+                      className="cursor-pointer text-center justify-center text-red-400 font-medium hover:bg-white/5 transition-colors duration-200"
                     >
                       View All Blocked Tasks →
                     </DropdownMenuItem>
@@ -222,41 +222,41 @@ export function TopBar({ userName, userEmail, userAvatar, onMenuClick }: TopBarP
             </DropdownMenu>
           )}
 
-          {/* Dark mode toggle */}
+          {/* Dark mode toggle - hidden since we're dark mode first */}
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="hover:bg-white/10 transition-colors duration-200 opacity-50"
+            title="Theme toggle (Dark mode optimized)"
           >
-            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Moon className="h-5 w-5 text-ai-violet-400" />
             <span className="sr-only">Toggle theme</span>
           </Button>
 
           {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-10 w-10">
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-white/10 transition-colors duration-200">
+                <Avatar className="h-10 w-10 ring-2 ring-ai-violet-500/30 hover:ring-ai-violet-500/50 transition-all duration-300">
                   <AvatarImage src={userAvatar || undefined} alt={userName} />
-                  <AvatarFallback className="bg-primary text-primary-foreground">
+                  <AvatarFallback className="bg-gradient-to-br from-ai-violet-600 to-electric-blue-600 text-white font-semibold">
                     {getInitials(userName)}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
+            <DropdownMenuContent className="w-56 modal-glass border border-white/20 rounded-xl" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal p-4">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{userName}</p>
+                  <p className="text-sm font-semibold leading-none text-foreground tracking-tight">{userName}</p>
                   <p className="text-xs leading-none text-muted-foreground">
                     {userEmail}
                   </p>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+              <DropdownMenuSeparator className="bg-white/10" />
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer hover:bg-white/5 transition-colors duration-200 m-2 rounded-lg">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
