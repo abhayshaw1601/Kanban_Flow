@@ -7,22 +7,28 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { UserPlus, Users, Shield, User } from 'lucide-react';
+import { UserPlus, Users, Shield, User, BarChart3, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useUsers } from '@/hooks/use-users';
 import { useBoards } from '@/hooks/use-boards';
 import { useAddBoardMember } from '@/hooks/use-board-members';
+import { useTeamOverview } from '@/hooks/use-analytics';
+import { MemberStatsModal } from '@/components/team/member-stats-modal';
 
 export default function TeamPage() {
   const router = useRouter();
   const { data: currentUser, isLoading: userLoading } = useCurrentUser();
   const { data: users = [], isLoading: usersLoading } = useUsers();
   const { data: boards = [] } = useBoards();
+  const { data: teamOverview } = useTeamOverview();
   const addBoardMember = useAddBoardMember();
 
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [selectedBoard, setSelectedBoard] = useState<string>('');
+  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
+  const [selectedMemberName, setSelectedMemberName] = useState<string>('');
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
 
   // Redirect non-admin users
   useEffect(() => {
@@ -56,6 +62,39 @@ export default function TeamPage() {
       const errorMessage = error.response?.data?.detail || 'Failed to add user to board';
       toast.error(errorMessage);
     }
+  };
+
+  const handleMemberClick = (userId: number, userName: string) => {
+    setSelectedMemberId(userId);
+    setSelectedMemberName(userName);
+    setIsStatsModalOpen(true);
+  };
+
+  const getPerformanceIndicator = (userId: number) => {
+    const memberStats = teamOverview?.team_members.find(m => m.user_id === userId);
+    if (!memberStats || memberStats.total_tasks === 0) {
+      return null;
+    }
+
+    const { performance_color, completion_percentage } = memberStats;
+    
+    const indicators = {
+      green: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' },
+      yellow: { icon: Clock, color: 'text-yellow-600', bg: 'bg-yellow-100' },
+      red: { icon: AlertCircle, color: 'text-red-600', bg: 'bg-red-100' }
+    };
+
+    const indicator = indicators[performance_color];
+    const Icon = indicator.icon;
+
+    return (
+      <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${indicator.bg}`}>
+        <Icon className={`w-3 h-3 ${indicator.color}`} />
+        <span className={`text-xs font-medium ${indicator.color}`}>
+          {completion_percentage}%
+        </span>
+      </div>
+    );
   };
 
   const getRoleIcon = (role: string) => {
@@ -182,15 +221,27 @@ export default function TeamPage() {
       {/* Team Members List */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {users.map((user) => (
-          <Card key={user.id}>
+          <Card 
+            key={user.id} 
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => handleMemberClick(user.id, user.name)}
+          >
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <Avatar className="w-12 h-12">
-                    <AvatarFallback className="text-lg bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-                      {getInitials(user.name)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative">
+                    <Avatar className="w-12 h-12">
+                      <AvatarFallback className="text-lg bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    {/* Performance Indicator */}
+                    {getPerformanceIndicator(user.id) && (
+                      <div className="absolute -top-1 -right-1">
+                        {getPerformanceIndicator(user.id)}
+                      </div>
+                    )}
+                  </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                       {user.name}
@@ -200,16 +251,37 @@ export default function TeamPage() {
                     </p>
                   </div>
                 </div>
-                {getRoleBadge(user.role)}
+                <div className="flex flex-col items-end gap-2">
+                  {getRoleBadge(user.role)}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMemberClick(user.id, user.name);
+                    }}
+                  >
+                    <BarChart3 className="w-3 h-3 mr-1" />
+                    Stats
+                  </Button>
+                </div>
               </div>
 
               <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                   Member since {new Date(user.created_at).toLocaleDateString()}
                 </p>
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <Users className="w-4 h-4" />
-                  <span>Access to boards via membership</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <Users className="w-4 h-4" />
+                    <span>Board member</span>
+                  </div>
+                  {teamOverview?.team_members.find(m => m.user_id === user.id)?.total_tasks && (
+                    <div className="text-xs text-gray-500">
+                      {teamOverview.team_members.find(m => m.user_id === user.id)?.total_tasks} tasks
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -230,6 +302,18 @@ export default function TeamPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Member Statistics Modal */}
+      <MemberStatsModal
+        userId={selectedMemberId}
+        userName={selectedMemberName}
+        isOpen={isStatsModalOpen}
+        onClose={() => {
+          setIsStatsModalOpen(false);
+          setSelectedMemberId(null);
+          setSelectedMemberName('');
+        }}
+      />
     </div>
   );
 }
