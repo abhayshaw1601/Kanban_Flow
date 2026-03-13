@@ -7,6 +7,7 @@ import { useCurrentUser } from '@/hooks/use-current-user';
 import { KanbanBoard } from '@/components/kanban/kanban-board';
 import { AddMemberDialog } from '@/components/boards/add-member-dialog';
 import { EditBoardDialog } from '@/components/boards/edit-board-dialog';
+import { DiagramTaskCreator } from '@/components/boards/diagram-task-creator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -131,6 +132,11 @@ export default function BoardPage({ params }: BoardPageProps) {
         </div>
         {isAdmin && (
           <div className="flex gap-2">
+            <DiagramTaskCreator 
+              boardId={parseInt(params.boardId)}
+              boardName={board.name}
+              isAdmin={isAdmin}
+            />
             <Button
               variant="outline"
               size="sm"

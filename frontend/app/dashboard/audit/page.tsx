@@ -4,6 +4,9 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { AuditDashboard } from '@/components/admin/audit-dashboard';
+import { DiagramAnalyzer } from '@/components/admin/diagram-analyzer';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search, Brain } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AuditPage() {
@@ -29,16 +32,35 @@ export default function AuditPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Project Audit
+            Admin Tools
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Monitor project deadlines and automatically flag overdue tasks as blockers
+            Project audit system and AI-powered diagram analysis
           </p>
         </div>
       </div>
 
-      {/* Audit Dashboard */}
-      <AuditDashboard />
+      {/* Tabs for different admin tools */}
+      <Tabs defaultValue="audit" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="audit" className="flex items-center gap-2">
+            <Search className="w-4 h-4" />
+            Project Audit
+          </TabsTrigger>
+          <TabsTrigger value="diagram" className="flex items-center gap-2">
+            <Brain className="w-4 h-4" />
+            Diagram Analyzer
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="audit">
+          <AuditDashboard />
+        </TabsContent>
+
+        <TabsContent value="diagram">
+          <DiagramAnalyzer />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

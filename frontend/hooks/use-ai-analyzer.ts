@@ -58,3 +58,28 @@ export function useCreateSubTasks() {
     },
   });
 }
+
+/**
+ * Hook for creating tasks from diagram analysis
+ */
+export function useCreateTasksFromDiagram() {
+  return useMutation({
+    mutationFn: async ({ boardId, file }: { boardId: number; file: File }) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch(`/ai/create-tasks-from-diagram/${boardId}`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to create tasks from diagram');
+      }
+      
+      return response.json();
+    },
+  });
+}
