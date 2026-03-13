@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Task Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2d3748;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+        
+        .input-section {
+            padding: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .analyze-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+        
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results {
+            padding: 30px;
+            border-top: 1px solid #e2e8f0;
+            display: none;
+        }
+        
+        .complexity-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .complexity-low { background: #c6f6d5; color: #22543d; }
+        .complexity-medium { background: #fef5e7; color: #744210; }
+        .complexity-high { background: #fed7d7; color: #742a2a; }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section ul {
+            list-style: none;
+        }
+        
+        .section li {
+            background: #f7fafc;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+        
+        .error {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Task Analyzer</h1>
+            <p>Transform vague prompts into structured technical tasks</p>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="prompt">Task Description:</label>
+                <textarea 
+                    id="prompt" 
+                    placeholder="Enter your vague task description here... (e.g., 'make the login better', 'fix the dashboard', 'add user management')"
+                ></textarea>
+            </div>
+            <button class="analyze-btn" onclick="analyzeTask()">
+                Analyze Task
+            </button>
+        </div>
+        
+        <div id="results" class="results">
+            <!-- Results will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        async function analyzeTask() {
+            const prompt = document.getElementById('prompt').value.trim();
+            const resultsDiv = document.getElementById('results');
+            const button = document.querySelector('.analyze-btn');
+            
+            if (!prompt) {
+                alert('Please enter a task description');
+                return;
+            }
+            
+            // Show loading state
+            button.disabled = true;
+            button.textContent = 'Analyzing...';
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<div class="loading">🔄 Analyzing your prompt...</div>';
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data.analysis);
+                } else {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Analyze Task';
+            }
+        }
+        
+        function displayResults(analysis) {
+            const complexityClass = `complexity-${analysis.estimated_complexity}`;
+            
+            const html = `
+                <div class="complexity-badge ${complexityClass}">
+                    📊 Complexity: ${analysis.estimated_complexity.toUpperCase()}
+                </div>
+                
+                <div class="section">
+                    <h3>📋 Technical Sub-Tasks</h3>
+                    <ul>
+                        ${analysis.technical_subtasks.map(task => `<li>${task}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <h3>✅ Acceptance Criteria</h3>
+                    <ul>
+                        ${analysis.acceptance_criteria.map(criteria => `<li>${criteria}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <h3>⚠️ Potential Blockers</h3>
+                    <ul>
+                        ${analysis.potential_blockers.map(blocker => `<li>${blocker}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('results').innerHTML = html;
+        }
+        
+        // Allow Enter key to submit (with Ctrl/Cmd)
+        document.getElementById('prompt').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                analyzeTask();
+            }
+        });
+    </script>
+</body>
+</html>
