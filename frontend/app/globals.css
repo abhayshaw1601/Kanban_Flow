@@ -169,16 +169,75 @@
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
   
-  /* Glass Morphism */
+  /* Glass Morphism Effects */
   .glass {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  }
+  
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(20px) saturate(200%);
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  }
+  
+  .glass-subtle {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.2);
+  }
+  
+  .glass-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(14px) saturate(170%);
+    -webkit-backdrop-filter: blur(14px) saturate(170%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 6px 24px 0 rgba(31, 38, 135, 0.3);
+  }
+  
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 16px 0 rgba(31, 38, 135, 0.1);
   }
   
   .dark .glass {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(15, 23, 42, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  }
+  
+  .dark .glass-strong {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  }
+  
+  .dark .glass-subtle {
+    background: rgba(15, 23, 42, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
+  }
+  
+  .dark .glass-card {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.3);
+  }
+  
+  .dark .glass-nav {
+    background: rgba(15, 23, 42, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.2);
   }
   
   /* Professional Gradients */
@@ -208,18 +267,30 @@
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
   }
   
-  /* Card Styles */
+  /* Card Styles with Glassmorphism */
   .card-elevated {
     @apply bg-card border border-border rounded-lg shadow-soft hover-lift;
+  }
+  
+  .card-glass {
+    @apply glass rounded-lg hover-lift;
+  }
+  
+  .card-glass-strong {
+    @apply glass-strong rounded-lg hover-lift;
   }
   
   .card-flat {
     @apply bg-card border border-border rounded-lg;
   }
   
-  /* Button Variants */
+  /* Button Variants with Glass Effects */
   .btn-primary {
     @apply bg-primary text-primary-foreground hover:bg-primary/90 focus-ring interactive;
+  }
+  
+  .btn-glass {
+    @apply glass text-foreground hover:glass-strong focus-ring interactive;
   }
   
   .btn-secondary {
@@ -228,6 +299,36 @@
   
   .btn-ghost {
     @apply hover:bg-accent hover:text-accent-foreground focus-ring interactive;
+  }
+  
+  /* Modal and Dialog Glass Effects */
+  .modal-glass {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 16px 64px 0 rgba(31, 38, 135, 0.4);
+  }
+  
+  .dark .modal-glass {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 16px 64px 0 rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Sidebar Glass Effect */
+  .sidebar-glass {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 2px 0 16px 0 rgba(31, 38, 135, 0.1);
+  }
+  
+  .dark .sidebar-glass {
+    background: rgba(15, 23, 42, 0.6);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 2px 0 16px 0 rgba(0, 0, 0, 0.2);
   }
 }
 

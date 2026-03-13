@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 glass-nav">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
@@ -43,7 +43,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-subtle"></div>
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto">
-            <Badge variant="secondary" className="mb-6 animate-fade-in">
+            <Badge variant="secondary" className="glass-subtle mb-6 animate-fade-in">
               <LordIcon
                 src="https://cdn.lordicon.com/jvucoldz.json"
                 trigger="hover"
@@ -85,7 +85,7 @@ export default function Home() {
                     size={20}
                     className="mr-2"
                   />
-                  Watch demo
+                  Login
                 </Button>
               </Link>
             </div>
@@ -98,7 +98,7 @@ export default function Home() {
       </section>
 
       {/* Logo Bar */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 border-t bg-muted/30">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 border-t glass-subtle">
         <div className="max-w-7xl mx-auto">
           <p className="text-center text-sm text-muted-foreground mb-8">
             Trusted by leading companies worldwide
@@ -116,7 +116,7 @@ export default function Home() {
       <section className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <Badge variant="outline" className="mb-4">
+            <Badge variant="outline" className="glass-subtle mb-4">
               Features
             </Badge>
             <h2 className="text-display text-4xl md:text-5xl font-normal text-foreground mb-6 text-balance">
@@ -129,7 +129,7 @@ export default function Home() {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="card-elevated group">
+            <Card className="card-glass group">
               <CardContent className="p-8">
                 <div className="mb-6">
                   <LordIcon
@@ -148,7 +148,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="card-elevated group">
+            <Card className="card-glass group">
               <CardContent className="p-8">
                 <div className="mb-6">
                   <LordIcon
@@ -167,7 +167,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="card-elevated group">
+            <Card className="card-glass group">
               <CardContent className="p-8">
                 <div className="mb-6">
                   <LordIcon
@@ -186,7 +186,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="card-elevated group">
+            <Card className="card-glass group">
               <CardContent className="p-8">
                 <div className="mb-6">
                   <LordIcon
@@ -205,7 +205,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="card-elevated group">
+            <Card className="card-glass group">
               <CardContent className="p-8">
                 <div className="mb-6">
                   <LordIcon
@@ -224,7 +224,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="card-elevated group">
+            <Card className="card-glass group">
               <CardContent className="p-8">
                 <div className="mb-6">
                   <LordIcon
@@ -247,10 +247,10 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-muted/30">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 glass-subtle">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <Badge variant="outline" className="mb-4">
+            <Badge variant="outline" className="glass-subtle mb-4">
               How it works
             </Badge>
             <h2 className="text-display text-4xl md:text-5xl font-normal text-foreground mb-6 text-balance">
@@ -262,7 +262,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-12">
             <div className="text-center">
               <div className="mb-6 flex justify-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 glass rounded-full flex items-center justify-center">
                   <LordIcon
                     src="https://cdn.lordicon.com/jvucoldz.json"
                     trigger="hover"
@@ -281,7 +281,7 @@ export default function Home() {
 
             <div className="text-center">
               <div className="mb-6 flex justify-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 glass rounded-full flex items-center justify-center">
                   <LordIcon
                     src="https://cdn.lordicon.com/dxjqoygy.json"
                     trigger="hover"
@@ -300,7 +300,7 @@ export default function Home() {
 
             <div className="text-center">
               <div className="mb-6 flex justify-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 glass rounded-full flex items-center justify-center">
                   <LordIcon
                     src="https://cdn.lordicon.com/qhviklyi.json"
                     trigger="hover"
@@ -356,7 +356,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-muted/30">
+      <footer className="border-t glass-subtle">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">

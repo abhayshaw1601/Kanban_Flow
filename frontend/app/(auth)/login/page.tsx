@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiClient } from '@/lib/api';
@@ -43,7 +44,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen glass-subtle flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
@@ -55,7 +56,7 @@ export default function LoginPage() {
           <p className="text-muted-foreground mt-2">Welcome back to your workspace</p>
         </div>
 
-        <Card className="shadow-soft border-0">
+        <Card className="card-glass">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-semibold">Sign In</CardTitle>
             <CardDescription>
@@ -74,26 +75,25 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                   required
-                  className="h-11"
+                  className="h-11 glass"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   required
-                  className="h-11"
+                  className="h-11 glass"
                 />
               </div>
               
               <Button
                 type="submit"
-                className="w-full h-11 text-base font-medium"
+                className="w-full h-11 text-base font-medium btn-primary"
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing in...' : 'Sign in'}

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -109,7 +110,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen glass-subtle flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
@@ -121,7 +122,7 @@ export default function RegisterPage() {
           <p className="text-muted-foreground mt-2">Create your account and get started</p>
         </div>
 
-        <Card className="shadow-soft border-0">
+        <Card className="card-glass">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-semibold">Create Account</CardTitle>
             <CardDescription>
@@ -141,7 +142,7 @@ export default function RegisterPage() {
                   onChange={(e) => setName(e.target.value)}
                   disabled={isLoading}
                   required
-                  className="h-11"
+                  className="h-11 glass"
                 />
               </div>
               
@@ -155,21 +156,20 @@ export default function RegisterPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                   required
-                  className="h-11"
+                  className="h-11 glass"
                 />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   placeholder="Create a strong password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   required
-                  className="h-11"
+                  className="h-11 glass"
                 />
                 <p className="text-xs text-muted-foreground">
                   Password must be at least 8 characters
@@ -180,10 +180,10 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <Label htmlFor="role">Your Role</Label>
                 <Select value={role} onValueChange={setRole} disabled={isLoading}>
-                  <SelectTrigger className="h-11">
+                  <SelectTrigger className="h-11 glass">
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="glass-strong">
                     <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="employee">Employee</SelectItem>
                   </SelectContent>
@@ -194,10 +194,10 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <Label htmlFor="company-option">Company Setup</Label>
                 <Select value={companyOption} onValueChange={setCompanyOption} disabled={isLoading || isLoadingCompanies}>
-                  <SelectTrigger className="h-11">
+                  <SelectTrigger className="h-11 glass">
                     <SelectValue placeholder="Choose company option" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="glass-strong">
                     <SelectItem value="existing">Join existing company</SelectItem>
                     <SelectItem value="new">Create new company</SelectItem>
                   </SelectContent>
@@ -209,10 +209,10 @@ export default function RegisterPage() {
                 <div className="space-y-2">
                   <Label htmlFor="existing-company">Select Company</Label>
                   <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId} disabled={isLoading}>
-                    <SelectTrigger className="h-11">
+                    <SelectTrigger className="h-11 glass">
                       <SelectValue placeholder="Choose a company" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="glass-strong">
                       {companies.map((company) => (
                         <SelectItem key={company.id} value={company.id.toString()}>
                           <div>
@@ -228,7 +228,7 @@ export default function RegisterPage() {
 
               {/* New Company Creation */}
               {companyOption === 'new' && (
-                <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                <div className="space-y-4 p-4 glass-subtle rounded-lg">
                   <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Create New Company</h4>
                   
                   <div className="space-y-2">
@@ -241,7 +241,7 @@ export default function RegisterPage() {
                       onChange={(e) => setNewCompanyName(e.target.value)}
                       disabled={isLoading}
                       required
-                      className="h-11"
+                      className="h-11 glass"
                     />
                   </div>
                   
@@ -255,7 +255,7 @@ export default function RegisterPage() {
                       onChange={(e) => setNewCompanyId(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                       disabled={isLoading}
                       required
-                      className="h-11"
+                      className="h-11 glass"
                     />
                     <p className="text-xs text-muted-foreground">
                       Unique identifier (lowercase, letters, numbers, and hyphens only)
@@ -271,7 +271,7 @@ export default function RegisterPage() {
                       onChange={(e) => setNewCompanyDescription(e.target.value)}
                       disabled={isLoading}
                       rows={3}
-                      className="resize-none"
+                      className="resize-none glass"
                     />
                   </div>
                 </div>
@@ -279,7 +279,7 @@ export default function RegisterPage() {
 
               <Button
                 type="submit"
-                className="w-full h-11 text-base font-medium"
+                className="w-full h-11 text-base font-medium btn-primary"
                 disabled={isLoading}
               >
                 {isLoading ? 'Creating account...' : 'Create account'}

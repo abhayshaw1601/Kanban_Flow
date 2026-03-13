@@ -4,14 +4,17 @@ User management API endpoints.
 This module provides endpoints for:
 - Getting current user profile
 - Listing all users (admin only)
+- Deleting user profile
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
 from ..core.database import get_db
 from ..core.deps import get_current_user, get_current_admin
 from ..models.user import User
+from ..models.task import Task
+from ..models.board_member import BoardMember
 from ..schemas.user import UserResponse
 
 
@@ -106,3 +109,63 @@ async def get_all_users(
     
     # Convert to response models (automatically excludes passwords)
     return [UserResponse.model_validate(user) for user in users]
+
+
+@router.delete("/me")
+async def delete_current_user(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> dict:
+    """
+    Delete the current authenticated user's profile.
+    
+    This endpoint allows users to delete their own profile. When a user is deleted:
+    - All tasks assigned to the user are unassigned (assignee_id set to None)
+    - User is removed from all board memberships
+    - User record is deleted from the database
+    - User is automatically logged out (cookies cleared)
+    
+    Args:
+        current_user: Authenticated user from JWT token (dependency)
+        db: Database session (dependency)
+        
+    Returns:
+        dict: Success message
+        
+    Raises:
+        HTTPException 401: If user is not authenticated
+        HTTPException 500: If deletion fails
+        
+    Example Response:
+        {
+            "message": "User profile deleted successfully"
+        }
+    """
+    try:
+        # Unassign all tasks assigned to this user
+        db.query(Task).filter(Task.assignee_id == current_user.id).update(
+            {"assignee_id": None}, synchronize_session=False
+        )
+        
+        # Remove user from all board memberships
+        db.query(BoardMember).filter(BoardMember.user_id == current_user.id).delete(
+            synchronize_session=False
+        )
+        
+        # Delete the user
+        db.delete(current_user)
+        db.commit()
+        
+        # Clear authentication cookies
+        response = Response(content='{"message": "User profile deleted successfully"}')
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+        
+        return {"message": "User profile deleted successfully"}
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to delete user profile"
+        )

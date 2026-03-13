@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Users, X } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SidebarProps {
@@ -27,6 +27,12 @@ export function Sidebar({ isAdmin, isOpen, onClose }: SidebarProps) {
       label: 'Team',
       icon: Users,
       adminOnly: true,
+    },
+    {
+      href: '/dashboard/settings',
+      label: 'Settings',
+      icon: Settings,
+      adminOnly: false,
     },
   ];
 
