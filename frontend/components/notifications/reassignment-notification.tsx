@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { AlertTriangle, X, Clock, Calendar } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, X, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
-interface BlockedTask {
+interface ReassignedTask {
   task_id: number;
   title: string;
   board_name: string;
@@ -17,48 +17,39 @@ interface BlockedTask {
   days_until_due: number | null;
   blocker_reason: string | null;
   is_overdue: boolean;
+  previous_assignee?: string;
 }
 
-interface BlockerNotificationProps {
-  blockedTasks: BlockedTask[];
+interface ReassignmentNotificationProps {
+  reassignedTasks: ReassignedTask[];
   onDismiss: () => void;
   onViewTask: (taskId: number) => void;
 }
 
-export function BlockerNotification({ blockedTasks, onDismiss, onViewTask }: BlockerNotificationProps) {
+export function ReassignmentNotification({ reassignedTasks, onDismiss, onViewTask }: ReassignmentNotificationProps) {
   const [isVisible, setIsVisible] = useState(true);
 
-  // Aggressive nagging messages - randomly selected
-  const nagMessages = [
-    "🔥 Your tasks are burning! Time to put out the fire!",
-    "⚡ These blockers won't resolve themselves. Get moving!",
-    "🚨 URGENT: Your team is waiting on YOU!",
-    "💥 Stop procrastinating! These tasks need action NOW!",
-    "⏰ Time is money, and you're wasting both!",
-    "🎯 Focus up! Your deadlines are screaming at you!",
-    "🌪️ Task tornado incoming! Handle these blockers ASAP!",
-    "🔔 Wake up call! Your projects are in danger!",
-    "💪 Show these tasks who's boss! Take action!",
-    "🚀 Launch into action! These blockers need clearing!",
-    "⚠️ Red alert! Your reputation is on the line!",
-    "🎪 The show must go on, but YOU'RE holding up the circus!",
-    "🏃‍♂️ Sprint mode activated! These tasks won't wait!",
-    "🔥 Your manager is asking questions. Answer with ACTION!",
-    "⚡ Lightning speed required! Move on these blockers!",
-    "🎯 Bulls-eye focus needed! Hit these tasks hard!",
-    "🌊 Don't let these tasks drown your project!",
-    "🚁 Emergency landing! Handle these critical blockers!",
-    "💎 Pressure makes diamonds. Handle the pressure!",
-    "🎬 Action! This is your moment to shine!"
+  // Encouraging messages for high performers getting reassigned tasks
+  const encouragementMessages = [
+    "🌟 You're our top performer! We're counting on you!",
+    "💪 Your excellent track record makes you perfect for these critical tasks!",
+    "🎯 These urgent tasks need someone reliable - that's you!",
+    "🚀 Your skills are needed to save the day!",
+    "⭐ We trust you to handle these important assignments!",
+    "🏆 You're the MVP - time to show your expertise!",
+    "💎 These tasks require a diamond-level performer like you!",
+    "🔥 Your success rate speaks for itself - take charge!",
+    "⚡ Lightning-fast delivery expected from our star player!",
+    "🎪 The spotlight is on you - time to perform!"
   ];
 
-  const getRandomNagMessage = () => {
-    return nagMessages[Math.floor(Math.random() * nagMessages.length)];
+  const getRandomEncouragementMessage = () => {
+    return encouragementMessages[Math.floor(Math.random() * encouragementMessages.length)];
   };
 
-  const [nagMessage] = useState(getRandomNagMessage());
+  const [encouragementMessage] = useState(getRandomEncouragementMessage());
 
-  if (!isVisible || blockedTasks.length === 0) {
+  if (!isVisible || reassignedTasks.length === 0) {
     return null;
   }
 
@@ -79,21 +70,21 @@ export function BlockerNotification({ blockedTasks, onDismiss, onViewTask }: Blo
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <Card className="w-full max-w-2xl max-h-[80vh] overflow-hidden">
-        <CardHeader className="bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800">
+        <CardHeader className="bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
-                <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+              <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-full">
+                <Star className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <CardTitle className="text-red-900 dark:text-red-100">
-                  🚨 Urgent: Blocked Tasks Require Attention
+                <CardTitle className="text-green-900 dark:text-green-100">
+                  🌟 New High-Priority Tasks Assigned
                 </CardTitle>
-                <CardDescription className="text-red-700 dark:text-red-300 font-medium">
-                  {nagMessage}
+                <CardDescription className="text-green-700 dark:text-green-300 font-medium">
+                  {encouragementMessage}
                 </CardDescription>
-                <CardDescription className="text-red-600 dark:text-red-400 text-sm mt-1">
-                  You have {blockedTasks.length} task{blockedTasks.length > 1 ? 's' : ''} that {blockedTasks.length > 1 ? 'are' : 'is'} marked as blocker{blockedTasks.length > 1 ? 's' : ''} and need immediate action
+                <CardDescription className="text-green-600 dark:text-green-400 text-sm mt-1">
+                  {reassignedTasks.length} urgent task{reassignedTasks.length > 1 ? 's have' : ' has'} been reassigned to you due to your excellent performance
                 </CardDescription>
               </div>
             </div>
@@ -101,7 +92,7 @@ export function BlockerNotification({ blockedTasks, onDismiss, onViewTask }: Blo
               variant="ghost"
               size="icon"
               onClick={handleDismiss}
-              className="text-red-600 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30"
+              className="text-green-600 hover:text-green-700 hover:bg-green-100 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/30"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -110,11 +101,11 @@ export function BlockerNotification({ blockedTasks, onDismiss, onViewTask }: Blo
         
         <CardContent className="p-0 max-h-96 overflow-y-auto">
           <div className="space-y-0">
-            {blockedTasks.map((task, index) => (
+            {reassignedTasks.map((task, index) => (
               <div
                 key={task.task_id}
                 className={`p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${
-                  index === blockedTasks.length - 1 ? 'border-b-0' : ''
+                  index === reassignedTasks.length - 1 ? 'border-b-0' : ''
                 }`}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -139,9 +130,16 @@ export function BlockerNotification({ blockedTasks, onDismiss, onViewTask }: Blo
                         <span><strong>Status:</strong> {task.column_name}</span>
                       </div>
                       
+                      {task.previous_assignee && (
+                        <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                          <ArrowRight className="w-4 h-4" />
+                          <span>Reassigned from: <strong>{task.previous_assignee}</strong></span>
+                        </div>
+                      )}
+                      
                       {task.due_date && (
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
+                          <Clock className="w-4 h-4" />
                           <span className={task.is_overdue ? 'text-red-600 font-medium' : ''}>
                             Due: {format(new Date(task.due_date), 'MMM d, yyyy')}
                             {task.days_until_due !== null && (
@@ -157,7 +155,7 @@ export function BlockerNotification({ blockedTasks, onDismiss, onViewTask }: Blo
                       )}
                       
                       {task.blocker_reason && (
-                        <div className="flex items-start gap-2 mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded text-red-800 dark:text-red-400">
+                        <div className="flex items-start gap-2 mt-2 p-2 bg-orange-50 dark:bg-orange-900/20 rounded text-orange-800 dark:text-orange-400">
                           <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" />
                           <span><strong>Reason:</strong> {task.blocker_reason}</span>
                         </div>
@@ -167,9 +165,9 @@ export function BlockerNotification({ blockedTasks, onDismiss, onViewTask }: Blo
                   
                   <Button
                     onClick={() => onViewTask(task.task_id)}
-                    className="bg-red-600 hover:bg-red-700 text-white"
+                    className="bg-green-600 hover:bg-green-700 text-white"
                   >
-                    View Task
+                    Take Action
                   </Button>
                 </div>
               </div>
@@ -177,13 +175,13 @@ export function BlockerNotification({ blockedTasks, onDismiss, onViewTask }: Blo
           </div>
         </CardContent>
         
-        <div className="p-4 bg-gray-50 dark:bg-gray-800 border-t">
+        <div className="p-4 bg-green-50 dark:bg-green-800 border-t">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              These tasks require immediate attention to prevent project delays
+            <p className="text-sm text-green-700 dark:text-green-300">
+              🏆 You were chosen for these tasks because of your outstanding performance record!
             </p>
-            <Button onClick={handleDismiss} variant="outline">
-              I'll Handle These
+            <Button onClick={handleDismiss} variant="outline" className="border-green-300 text-green-700 hover:bg-green-100">
+              Let's Do This!
             </Button>
           </div>
         </div>

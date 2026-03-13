@@ -403,3 +403,105 @@ async def get_user_blocked_tasks(
         "total_blocked": len(blocked_tasks_data),
         "last_checked": datetime.utcnow().isoformat()
     }
+
+
+@router.get("/user/{user_id}/assigned-tasks")
+async def get_user_assigned_tasks(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get all tasks assigned to a specific user.
+    
+    Users can only access their own assigned tasks unless they are admin.
+    
+    Args:
+        user_id: ID of the user to get assigned tasks for
+        db: Database session
+        current_user: Current authenticated user
+        
+    Returns:
+        Dict containing all assigned tasks for the user
+        
+    Raises:
+        HTTPException 403: If user tries to access another user's tasks (non-admin)
+        HTTPException 404: If user not found
+    """
+    # Check permissions - users can only see their own tasks, admins can see any
+    if current_user.role != 'admin' and current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only view your own assigned tasks"
+        )
+    
+    # Verify user exists
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id {user_id} not found"
+        )
+    
+    # Get all tasks assigned to the user
+    assigned_tasks = db.query(Task).join(
+        Column, Task.column_id == Column.id
+    ).join(
+        Board, Column.board_id == Board.id
+    ).filter(
+        Task.assignee_id == user_id
+    ).order_by(Task.due_date.asc().nullslast(), Task.priority.desc()).all()
+    
+    # Format assigned tasks
+    assigned_tasks_data = []
+    for task in assigned_tasks:
+        days_until_due = None
+        if task.due_date:
+            days_until_due = (task.due_date - datetime.utcnow()).days
+        
+        # Determine task status based on column name
+        is_completed = task.column.name.lower() in ['done', 'complete', 'finished', 'completed']
+        is_in_progress = task.column.name.lower() in ['in progress', 'doing', 'development', 'in-progress']
+        
+        assigned_tasks_data.append({
+            'task_id': task.id,
+            'title': task.title,
+            'description': task.description,
+            'board_name': task.column.board.name,
+            'board_id': task.column.board.id,
+            'column_name': task.column.name,
+            'priority': task.priority.value,
+            'due_date': task.due_date.isoformat() if task.due_date else None,
+            'days_until_due': days_until_due,
+            'is_blocker': getattr(task, 'is_blocker', False),
+            'blocker_reason': getattr(task, 'blocker_reason', None),
+            'is_overdue': days_until_due is not None and days_until_due < 0,
+            'is_completed': is_completed,
+            'is_in_progress': is_in_progress,
+            'created_at': task.created_at.isoformat(),
+            'updated_at': task.updated_at.isoformat()
+        })
+    
+    # Calculate statistics
+    total_tasks = len(assigned_tasks_data)
+    completed_tasks = len([t for t in assigned_tasks_data if t['is_completed']])
+    in_progress_tasks = len([t for t in assigned_tasks_data if t['is_in_progress']])
+    todo_tasks = total_tasks - completed_tasks - in_progress_tasks
+    blocked_tasks = len([t for t in assigned_tasks_data if t['is_blocker']])
+    overdue_tasks = len([t for t in assigned_tasks_data if t['is_overdue'] and not t['is_completed']])
+    
+    completion_percentage = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
+    
+    return {
+        "assigned_tasks": assigned_tasks_data,
+        "statistics": {
+            "total_tasks": total_tasks,
+            "completed_tasks": completed_tasks,
+            "in_progress_tasks": in_progress_tasks,
+            "todo_tasks": todo_tasks,
+            "blocked_tasks": blocked_tasks,
+            "overdue_tasks": overdue_tasks,
+            "completion_percentage": round(completion_percentage, 1)
+        },
+        "last_checked": datetime.utcnow().isoformat()
+    }

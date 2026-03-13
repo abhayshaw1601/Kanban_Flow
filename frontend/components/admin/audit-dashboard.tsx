@@ -244,6 +244,42 @@ export function AuditDashboard() {
                 </div>
               </div>
               
+              {/* Reassignment Results */}
+              {runAudit.data.results.reassigned_tasks && runAudit.data.results.reassigned_tasks.length > 0 && (
+                <div className="mt-6">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                    🔄 Task Reassignments
+                    <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400">
+                      {runAudit.data.results.reassigned_tasks.length} Reassigned
+                    </Badge>
+                  </h4>
+                  <div className="space-y-2">
+                    {runAudit.data.results.reassigned_tasks.map((reassignment: any, index: number) => (
+                      <div
+                        key={index}
+                        className="p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">
+                              {reassignment.title}
+                            </span>
+                            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                              <span className="text-red-600">From: {reassignment.old_assignee}</span>
+                              <span className="mx-2">→</span>
+                              <span className="text-green-600">To: {reassignment.new_assignee}</span>
+                            </div>
+                          </div>
+                          <Badge className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
+                            {reassignment.days_overdue} days overdue
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 Audit completed at: {new Date(runAudit.data.results.audit_completed_at).toLocaleString()}
               </div>

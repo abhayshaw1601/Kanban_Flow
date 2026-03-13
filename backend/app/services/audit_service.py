@@ -4,7 +4,7 @@ Audit Service for checking overdue tasks and marking blockers
 
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, func, case
 from typing import List, Dict, Any
 
 from ..models.task import Task
@@ -59,13 +59,33 @@ class AuditService:
             
             print(f"📋 Found {len(overdue_tasks)} tasks requiring blocker status")
             
-            # Mark tasks as blockers
+            # Mark tasks as blockers and handle reassignment
             blocked_tasks = []
+            reassigned_tasks = []
+            
             for task in overdue_tasks:
                 days_until_due = (task.due_date - datetime.utcnow()).days
                 
                 if days_until_due < 0:
                     reason = f"Task is {abs(days_until_due)} days overdue"
+                    
+                    # Check if task should be reassigned (overdue by more than 1 day)
+                    if abs(days_until_due) > 1:
+                        new_assignee = self._find_best_performer_for_reassignment(task)
+                        if new_assignee and new_assignee.id != task.assignee_id:
+                            old_assignee_name = task.assignee.name if task.assignee else 'Unassigned'
+                            task.assignee_id = new_assignee.id
+                            reason += f" - Reassigned from {old_assignee_name} to {new_assignee.name}"
+                            
+                            reassigned_tasks.append({
+                                'task_id': task.id,
+                                'title': task.title,
+                                'old_assignee': old_assignee_name,
+                                'new_assignee': new_assignee.name,
+                                'days_overdue': abs(days_until_due)
+                            })
+                            
+                            print(f"🔄 Reassigned overdue task '{task.title}' from {old_assignee_name} to {new_assignee.name}")
                 else:
                     reason = f"Task due in {days_until_due} days"
                 
@@ -93,11 +113,13 @@ class AuditService:
             stats = self._get_audit_statistics()
             
             print(f"✅ Audit completed. Marked {len(blocked_tasks)} tasks as blockers")
+            print(f"🔄 Reassigned {len(reassigned_tasks)} overdue tasks to better performers")
             
             return {
                 'audit_completed_at': datetime.utcnow().isoformat(),
                 'tasks_marked_as_blockers': len(blocked_tasks),
                 'blocked_tasks': blocked_tasks,
+                'reassigned_tasks': reassigned_tasks,
                 'statistics': stats
             }
             
@@ -238,4 +260,97 @@ class AuditService:
                 'blocked_tasks': 0,
                 'completed_tasks': 0,
                 'pending_tasks': 0
+            }
+    
+    def _find_best_performer_for_reassignment(self, task: Task) -> User:
+        """
+        Find the best performing user to reassign an overdue task to.
+        
+        Looks for users with green performance status (>50% completion rate)
+        and selects the one with the best performance and lowest current workload.
+        
+        Args:
+            task: The task that needs reassignment
+            
+        Returns:
+            User object of the best performer, or None if no suitable user found
+        """
+        try:
+            # Get all users except the current assignee and admins
+            potential_assignees = self.db.query(User).filter(
+                and_(
+                    User.role != 'admin',
+                    User.id != task.assignee_id if task.assignee_id else True
+                )
+            ).all()
+            
+            if not potential_assignees:
+                return None
+            
+            best_performer = None
+            best_score = -1
+            
+            for user in potential_assignees:
+                # Calculate user's performance metrics
+                user_stats = self._calculate_user_performance(user.id)
+                
+                # Only consider users with green performance (>50% completion)
+                if user_stats['completion_percentage'] > 50:
+                    # Calculate score based on completion rate and current workload
+                    # Higher completion rate = better, lower workload = better
+                    completion_score = user_stats['completion_percentage'] / 100
+                    workload_score = max(0, (20 - user_stats['pending_tasks']) / 20)  # Normalize to 0-1
+                    
+                    # Combined score (70% completion rate, 30% workload)
+                    combined_score = (completion_score * 0.7) + (workload_score * 0.3)
+                    
+                    if combined_score > best_score:
+                        best_score = combined_score
+                        best_performer = user
+            
+            return best_performer
+            
+        except Exception as e:
+            print(f"Error finding best performer: {e}")
+            return None
+    
+    def _calculate_user_performance(self, user_id: int) -> Dict[str, Any]:
+        """Calculate performance metrics for a specific user"""
+        
+        try:
+            # Get task statistics by column type
+            task_stats = self.db.query(
+                func.count(Task.id).label('total_tasks'),
+                func.sum(
+                    case(
+                        (func.lower(Column.name).in_(['done', 'complete', 'finished', 'completed']), 1),
+                        else_=0
+                    )
+                ).label('done_count')
+            ).join(
+                Column, Task.column_id == Column.id
+            ).filter(
+                Task.assignee_id == user_id
+            ).first()
+            
+            total_tasks = task_stats.total_tasks or 0
+            done_count = task_stats.done_count or 0
+            pending_tasks = total_tasks - done_count
+            
+            completion_percentage = (done_count / total_tasks * 100) if total_tasks > 0 else 0
+            
+            return {
+                'total_tasks': total_tasks,
+                'done_tasks': done_count,
+                'pending_tasks': pending_tasks,
+                'completion_percentage': completion_percentage
+            }
+            
+        except Exception as e:
+            print(f"Error calculating user performance: {e}")
+            return {
+                'total_tasks': 0,
+                'done_tasks': 0,
+                'pending_tasks': 0,
+                'completion_percentage': 0
             }

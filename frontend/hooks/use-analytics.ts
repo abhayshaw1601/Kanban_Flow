@@ -68,6 +68,13 @@ export interface AuditResults {
       days_until_due: number;
       reason: string;
     }>;
+    reassigned_tasks?: Array<{
+      task_id: number;
+      title: string;
+      old_assignee: string;
+      new_assignee: string;
+      days_overdue: number;
+    }>;
     statistics: {
       total_tasks: number;
       tasks_with_due_dates: number;

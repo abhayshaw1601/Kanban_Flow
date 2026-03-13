@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test script to verify the notification system works correctly
+Test script to verify the enhanced notification system with nagging and reassignment
 """
 
 import os
@@ -16,109 +16,150 @@ from app.models.user import User
 from app.core.database import get_db
 from app.services.audit_service import AuditService
 
-def test_notification_system():
-    """Test the notification system by creating blocked tasks for a specific user"""
+def test_enhanced_notification_system():
+    """Test the enhanced notification system with nagging and reassignment"""
     
-    print("🧪 Testing Notification System")
-    print("=" * 50)
+    print("🧪 Testing Enhanced Notification System")
+    print("=" * 60)
     
     # Get database session
     db = next(get_db())
     
     try:
-        # Get a non-admin user for testing
-        regular_user = db.query(User).filter(User.role != 'admin').first()
+        # Get users for testing
+        users = db.query(User).filter(User.role != 'admin').all()
         
-        if not regular_user:
-            print("❌ No regular users found. Please create a non-admin user first.")
+        if len(users) < 2:
+            print("❌ Need at least 2 non-admin users for testing. Please create more users.")
             return
         
-        print(f"👤 Testing with user: {regular_user.name} (ID: {regular_user.id})")
+        print(f"👥 Found {len(users)} users for testing")
         
-        # Get some tasks assigned to this user
-        user_tasks = db.query(Task).filter(Task.assignee_id == regular_user.id).limit(3).all()
+        # Create a high performer (green status - >50% completion)
+        high_performer = users[0]
+        print(f"🌟 High performer: {high_performer.name}")
         
-        if not user_tasks:
-            print("❌ No tasks found for this user. Please assign some tasks first.")
-            return
+        # Create a low performer (will get tasks reassigned from them)
+        low_performer = users[1] if len(users) > 1 else users[0]
+        print(f"📉 Low performer: {low_performer.name}")
         
-        print(f"📋 Found {len(user_tasks)} tasks for user")
-        
-        # Clear any existing blocker status
-        for task in user_tasks:
+        # Clear existing blocker status
+        all_tasks = db.query(Task).all()
+        for task in all_tasks:
             task.is_blocker = False
             task.blocker_reason = None
         
         db.commit()
         print("🧹 Cleared existing blocker status")
         
-        # Mark tasks as blockers with different scenarios
-        scenarios = [
+        # Set up performance data - make first user a high performer
+        high_performer_tasks = db.query(Task).filter(Task.assignee_id == high_performer.id).limit(10).all()
+        
+        # Mark most of high performer's tasks as done (to get >50% completion)
+        done_count = 0
+        for i, task in enumerate(high_performer_tasks):
+            if i < 7:  # Mark 7 out of 10 as done (70% completion)
+                # Find a "Done" column or create the effect
+                from app.models.column import Column
+                done_column = db.query(Column).filter(Column.name.ilike('%done%')).first()
+                if done_column:
+                    task.column_id = done_column.id
+                    done_count += 1
+        
+        print(f"✅ Set up {high_performer.name} as high performer ({done_count} completed tasks)")
+        
+        # Create overdue tasks for low performer that will be reassigned
+        overdue_scenarios = [
             {
-                'task': user_tasks[0],
-                'reason': 'Task is 3 days overdue - requires immediate attention',
-                'due_date': datetime.utcnow() - timedelta(days=3)
+                'title': 'Critical Bug Fix - Payment System',
+                'description': 'Fix critical payment processing bug affecting customers',
+                'days_overdue': 3,
+                'priority': 'high'
             },
             {
-                'task': user_tasks[1] if len(user_tasks) > 1 else None,
-                'reason': 'Task due tomorrow - needs completion',
-                'due_date': datetime.utcnow() + timedelta(days=1)
+                'title': 'Database Migration Script',
+                'description': 'Create and test database migration for new features',
+                'days_overdue': 5,
+                'priority': 'high'
             },
             {
-                'task': user_tasks[2] if len(user_tasks) > 2 else None,
-                'reason': 'High priority task blocking other work',
-                'due_date': datetime.utcnow() + timedelta(days=2)
+                'title': 'Security Vulnerability Patch',
+                'description': 'Apply security patches to prevent data breaches',
+                'days_overdue': 2,
+                'priority': 'high'
             }
         ]
         
-        blocked_count = 0
-        for scenario in scenarios:
-            if scenario['task']:
-                task = scenario['task']
-                task.is_blocker = True
-                task.blocker_reason = scenario['reason']
-                task.due_date = scenario['due_date']
-                task.priority = 'high'  # Make it high priority
-                blocked_count += 1
-                
-                print(f"🚨 Marked task '{task.title}' as blocker")
-                print(f"   Reason: {scenario['reason']}")
+        # Get a column for these tasks
+        from app.models.column import Column
+        todo_column = db.query(Column).filter(Column.name.ilike('%todo%')).first()
+        if not todo_column:
+            todo_column = db.query(Column).first()
+        
+        created_tasks = []
+        for i, scenario in enumerate(overdue_scenarios):
+            task = Task(
+                title=scenario['title'],
+                description=scenario['description'],
+                due_date=datetime.utcnow() - timedelta(days=scenario['days_overdue']),
+                priority=scenario['priority'],
+                order=i,
+                column_id=todo_column.id,
+                assignee_id=low_performer.id
+            )
+            db.add(task)
+            created_tasks.append(task)
         
         db.commit()
+        print(f"📋 Created {len(created_tasks)} overdue tasks for {low_performer.name}")
         
-        print(f"\n✅ Successfully marked {blocked_count} tasks as blockers for {regular_user.name}")
-        print(f"📱 User should now see notification popup when they log in")
+        # Run the audit to trigger reassignment
+        print("\n🔍 Running audit with reassignment logic...")
+        audit_service = AuditService(db)
+        results = audit_service.run_audit()
         
-        # Test the API endpoint
-        print("\n🔍 Testing API endpoint...")
+        print(f"\n📊 Audit Results:")
+        print(f"  - Tasks marked as blockers: {results['tasks_marked_as_blockers']}")
+        print(f"  - Tasks reassigned: {len(results.get('reassigned_tasks', []))}")
         
-        # Simulate API call to get blocked tasks
-        blocked_tasks = db.query(Task).filter(
-            Task.assignee_id == regular_user.id,
-            Task.is_blocker == True
-        ).all()
+        # Show reassignment details
+        if results.get('reassigned_tasks'):
+            print(f"\n🔄 Reassignment Details:")
+            for reassignment in results['reassigned_tasks']:
+                print(f"  📋 {reassignment['title']}")
+                print(f"     From: {reassignment['old_assignee']} → To: {reassignment['new_assignee']}")
+                print(f"     Reason: {reassignment['days_overdue']} days overdue")
+                print()
         
-        print(f"📊 API would return {len(blocked_tasks)} blocked tasks:")
-        for task in blocked_tasks:
-            days_until_due = (task.due_date - datetime.utcnow()).days if task.due_date else None
-            is_overdue = days_until_due is not None and days_until_due < 0
-            
-            print(f"  - {task.title}")
-            print(f"    Priority: {task.priority.value}")
-            print(f"    Due: {task.due_date.strftime('%Y-%m-%d') if task.due_date else 'No due date'}")
-            print(f"    Overdue: {is_overdue}")
-            print(f"    Reason: {task.blocker_reason}")
-            print()
+        # Test nagging messages
+        print(f"\n💬 Testing Nagging Messages:")
+        nag_messages = [
+            "🔥 Your tasks are burning! Time to put out the fire!",
+            "⚡ These blockers won't resolve themselves. Get moving!",
+            "🚨 URGENT: Your team is waiting on YOU!",
+            "💥 Stop procrastinating! These tasks need action NOW!",
+            "⏰ Time is money, and you're wasting both!"
+        ]
         
-        print("🎉 Notification system test completed!")
-        print("\n📋 Next steps:")
-        print(f"1. Start the backend server")
-        print(f"2. Login as user: {regular_user.email}")
-        print(f"3. You should see a popup notification about {blocked_count} blocked tasks")
-        print(f"4. Check the topbar for blocker indicator")
+        for i, message in enumerate(nag_messages[:3]):
+            print(f"  {i+1}. {message}")
+        
+        print(f"\n🎉 Enhanced notification system test completed!")
+        print(f"\n📋 Summary:")
+        print(f"  - High performer ({high_performer.name}) has green status")
+        print(f"  - Overdue tasks automatically reassigned to high performer")
+        print(f"  - Aggressive nagging messages will be shown to employees")
+        print(f"  - {results['tasks_marked_as_blockers']} tasks marked as blockers")
+        print(f"  - {len(results.get('reassigned_tasks', []))} tasks reassigned")
+        
+        print(f"\n🚀 Next Steps:")
+        print(f"1. Start backend server")
+        print(f"2. Login as {low_performer.name} to see nagging notifications")
+        print(f"3. Login as {high_performer.name} to see newly assigned tasks")
+        print(f"4. Check admin audit dashboard for reassignment details")
         
     except Exception as e:
-        print(f"❌ Error testing notification system: {e}")
+        print(f"❌ Error testing enhanced notification system: {e}")
         import traceback
         traceback.print_exc()
         db.rollback()
@@ -127,4 +168,4 @@ def test_notification_system():
         db.close()
 
 if __name__ == "__main__":
-    test_notification_system()
+    test_enhanced_notification_system()
