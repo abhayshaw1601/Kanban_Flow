@@ -244,6 +244,40 @@ export function AuditDashboard() {
                 </div>
               </div>
               
+              {/* AI Comments Results */}
+              {runAudit.data.results.ai_comments && runAudit.data.results.ai_comments.length > 0 && (
+                <div className="mt-6">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                    💬 AI Comments Added
+                    <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                      {runAudit.data.results.ai_comments.length} Comments
+                    </Badge>
+                  </h4>
+                  <div className="space-y-2">
+                    {runAudit.data.results.ai_comments.map((aiComment: any, index: number) => (
+                      <div
+                        key={index}
+                        className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <span className="font-medium text-gray-900 dark:text-gray-100">
+                              {aiComment.task_title}
+                            </span>
+                            <div className="text-sm text-blue-700 dark:text-blue-300 mt-1 italic">
+                              "{aiComment.comment}"
+                            </div>
+                          </div>
+                          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 ml-2">
+                            🤖 AI
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               {/* Reassignment Results */}
               {runAudit.data.results.reassigned_tasks && runAudit.data.results.reassigned_tasks.length > 0 && (
                 <div className="mt-6">

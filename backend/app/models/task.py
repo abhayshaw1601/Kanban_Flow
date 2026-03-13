@@ -59,6 +59,7 @@ class Task(Base):
     # Relationships
     column = relationship("Column", back_populates="tasks")
     assignee = relationship("User", back_populates="assigned_tasks")
+    comments = relationship("Comment", back_populates="task", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<Task(id={self.id}, title='{self.title}', priority='{self.priority.value}', is_blocker={self.is_blocker})>"

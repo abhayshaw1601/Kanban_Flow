@@ -16,6 +16,7 @@ import { useBoardMembers } from '@/hooks/use-board-members';
 import { useUpdateTask, useDeleteTask, useCreateTask } from '@/hooks/use-tasks';
 import { useAnalyzeTask, useAIAnalyzerHealth, useCreateSubTasks, useEnhanceTask } from '@/hooks/use-ai-analyzer';
 import { aiAnalyzer } from '@/lib/ai-analyzer';
+import { TaskComments } from '@/components/tasks/task-comments';
 import type { Task, Column } from '@/hooks/use-board';
 
 // Dynamically import markdown editor to avoid SSR issues
@@ -395,6 +396,11 @@ export function TaskModal({ task, boardId, columns, isOpen, onClose }: TaskModal
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Comments Section */}
+          <div className="border-t pt-4">
+            <TaskComments taskId={task.id} />
           </div>
 
           {/* Action Buttons */}

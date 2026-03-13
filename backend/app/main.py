@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.routers import auth, users, boards, members, tasks, companies, ai, analytics
+from app.routers import auth, users, boards, members, tasks, companies, ai, analytics, comments
 
 app = FastAPI(
     title="KanbanFlow API",
@@ -27,6 +27,7 @@ app.include_router(tasks.router)
 app.include_router(companies.router)
 app.include_router(ai.router, prefix="/ai", tags=["AI"])
 app.include_router(analytics.router, prefix="", tags=["Analytics"])
+app.include_router(comments.router, prefix="", tags=["Comments"])
 
 @app.get("/")
 def read_root():

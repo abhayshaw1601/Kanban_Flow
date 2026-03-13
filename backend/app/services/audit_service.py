@@ -11,6 +11,7 @@ from ..models.task import Task
 from ..models.column import Column
 from ..models.board import Board
 from ..models.user import User
+from ..models.comment import Comment
 
 
 class AuditService:
@@ -62,9 +63,28 @@ class AuditService:
             # Mark tasks as blockers and handle reassignment
             blocked_tasks = []
             reassigned_tasks = []
+            ai_comments = []
             
             for task in overdue_tasks:
                 days_until_due = (task.due_date - datetime.utcnow()).days
+                
+                # Generate passive-aggressive AI comment
+                ai_comment = self._generate_passive_aggressive_comment(task, days_until_due)
+                comment = Comment(
+                    content=ai_comment,
+                    is_ai_generated=True,
+                    task_id=task.id,
+                    author_id=None  # AI comments have no human author
+                )
+                self.db.add(comment)
+                
+                ai_comments.append({
+                    'task_id': task.id,
+                    'task_title': task.title,
+                    'comment': ai_comment
+                })
+                
+                print(f"💬 Added AI comment to task '{task.title}': {ai_comment}")
                 
                 if days_until_due < 0:
                     reason = f"Task is {abs(days_until_due)} days overdue"
@@ -114,12 +134,14 @@ class AuditService:
             
             print(f"✅ Audit completed. Marked {len(blocked_tasks)} tasks as blockers")
             print(f"🔄 Reassigned {len(reassigned_tasks)} overdue tasks to better performers")
+            print(f"💬 Added {len(ai_comments)} AI comments to tasks")
             
             return {
                 'audit_completed_at': datetime.utcnow().isoformat(),
                 'tasks_marked_as_blockers': len(blocked_tasks),
                 'blocked_tasks': blocked_tasks,
                 'reassigned_tasks': reassigned_tasks,
+                'ai_comments': ai_comments,
                 'statistics': stats
             }
             
@@ -354,3 +376,70 @@ class AuditService:
                 'pending_tasks': 0,
                 'completion_percentage': 0
             }
+    
+    def _generate_passive_aggressive_comment(self, task: Task, days_until_due: int) -> str:
+        """
+        Generate a passive-aggressive AI comment for overdue or stuck tasks.
+        
+        Args:
+            task: The task that needs a comment
+            days_until_due: Number of days until due (negative if overdue)
+            
+        Returns:
+            A passive-aggressive comment string
+        """
+        
+        # Pool of passive-aggressive comments
+        if days_until_due < 0:
+            # Overdue comments
+            overdue_days = abs(days_until_due)
+            overdue_comments = [
+                f"🤔 Just checking in... this task was due {overdue_days} days ago. Everything okay?",
+                f"⏰ Friendly reminder: this task is now {overdue_days} days overdue. No pressure though! 😅",
+                f"📅 I hate to be that AI, but this task missed its deadline by {overdue_days} days. Just saying...",
+                f"🚨 Status update needed! This task has been overdue for {overdue_days} days. Should I be worried?",
+                f"💭 I'm sure you have a good reason for this task being {overdue_days} days late. Care to share?",
+                f"🎯 This task was supposed to be done {overdue_days} days ago. Plot twist: it's still here!",
+                f"⚡ Quick question: is this task stuck in a time loop? It's been overdue for {overdue_days} days.",
+                f"🔍 Detective AI here: this task went missing {overdue_days} days ago. Any leads?",
+                f"📢 Breaking news: Task still not done after {overdue_days} days past deadline!",
+                f"🎪 Welcome to the overdue circus! This task has been the star performer for {overdue_days} days.",
+                f"🏃‍♂️ This task is running {overdue_days} days behind schedule. Maybe it needs a GPS?",
+                f"🎭 The suspense is killing me! Will this {overdue_days}-day overdue task ever be completed?",
+                f"🌟 Congratulations! This task has achieved {overdue_days} days of overdue status. New record?",
+                f"🔮 My crystal ball says this task was due {overdue_days} days ago. Magic isn't working here.",
+                f"🎨 This task is becoming a masterpiece of procrastination - {overdue_days} days in the making!"
+            ]
+            return overdue_comments[hash(task.title) % len(overdue_comments)]
+        
+        elif days_until_due <= 1:
+            # Due soon comments
+            due_soon_comments = [
+                "⏳ Tick tock... this task is due very soon. Just a gentle nudge from your friendly AI!",
+                "🚀 T-minus 1 day until this task is due. Houston, do we have a problem?",
+                "📋 Status check: this task is due tomorrow. Everything under control?",
+                "⚠️ Yellow alert! This task is approaching its deadline. All hands on deck?",
+                "🎯 Bullseye incoming! This task's deadline is tomorrow. Ready, aim, fire?",
+                "🏁 Final lap! This task crosses the finish line tomorrow. Sprint time?",
+                "⏰ Last call for this task! Deadline is tomorrow. No pressure... okay, maybe a little.",
+                "🎪 The deadline circus is coming to town tomorrow! Is this task ready for the show?",
+                "🌅 Tomorrow's sunrise brings this task's deadline. Will it see completion?",
+                "🎬 Tomorrow is the premiere date for this task. Is it ready for the spotlight?"
+            ]
+            return due_soon_comments[hash(task.title) % len(due_soon_comments)]
+        
+        else:
+            # General stuck in progress comments
+            stuck_comments = [
+                "🤖 AI wellness check: How's this task doing? It's been sitting here for a while...",
+                "📊 Status report requested: This task seems to be taking a scenic route to completion.",
+                "🔄 Just wondering... is this task stuck in an infinite loop? Asking for a friend (me).",
+                "💭 Penny for your thoughts on this task's progress? The suspense is building!",
+                "🎯 This task is playing hard to get with the 'Done' column. Any strategies?",
+                "🌱 This task is growing roots in the 'In Progress' column. Time to transplant?",
+                "🎪 This task is putting on quite a show in the 'In Progress' column. Encore performance?",
+                "🔍 Mystery solver AI here: What's the secret to moving this task forward?",
+                "⚡ Power-up needed? This task seems to be running low on momentum.",
+                "🎨 This task is becoming a permanent art installation in 'In Progress'. Modern art?"
+            ]
+            return stuck_comments[hash(task.title) % len(stuck_comments)]

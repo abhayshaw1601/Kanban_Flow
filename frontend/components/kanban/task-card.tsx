@@ -5,11 +5,12 @@ import { Draggable } from '@hello-pangea/dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Calendar, ArrowRight, Brain, Sparkles, AlertTriangle } from 'lucide-react';
+import { Calendar, ArrowRight, Brain, Sparkles, AlertTriangle, MessageCircle } from 'lucide-react';
 import { format, isPast } from 'date-fns';
 import { TaskModal } from './task-modal';
 import { useMoveTask } from '@/hooks/use-tasks';
 import { useAnalyzeTask, useAIAnalyzerHealth } from '@/hooks/use-ai-analyzer';
+import { useLatestAIComment } from '@/hooks/use-task-comments';
 import { aiAnalyzer } from '@/lib/ai-analyzer';
 import { toast } from 'sonner';
 import type { Task, Column } from '@/hooks/use-board';
@@ -26,6 +27,7 @@ export function TaskCard({ task, index, boardId, columns }: TaskCardProps) {
   const moveTaskMutation = useMoveTask();
   const analyzeTask = useAnalyzeTask();
   const { data: isAIHealthy = false } = useAIAnalyzerHealth();
+  const { latestAIComment, hasAIComments } = useLatestAIComment(task.id);
 
   // Get priority badge color
   const getPriorityColor = (priority: string) => {
@@ -135,7 +137,7 @@ export function TaskCard({ task, index, boardId, columns }: TaskCardProps) {
               snapshot.isDragging ? 'rotate-2 shadow-lg' : ''
             }`}
           >
-            {/* Task Title with AI Badge and Blocker Indicator */}
+            {/* Task Title with AI Badge, Blocker Indicator, and Comment Indicator */}
             <div className="flex items-start justify-between mb-2">
               <h4 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-2 flex-1">
                 {task.title}
@@ -150,6 +152,19 @@ export function TaskCard({ task, index, boardId, columns }: TaskCardProps) {
                     <AlertTriangle className="h-3 w-3 text-red-600 dark:text-red-400" />
                     <span className="text-xs font-medium text-red-600 dark:text-red-400">
                       BLOCKER
+                    </span>
+                  </div>
+                )}
+                
+                {/* AI Comment Indicator */}
+                {hasAIComments && (
+                  <div 
+                    className="flex items-center gap-1 px-2 py-1 bg-orange-100 dark:bg-orange-900/20 rounded-full"
+                    title="AI has left a comment on this task"
+                  >
+                    <MessageCircle className="h-3 w-3 text-orange-600 dark:text-orange-400" />
+                    <span className="text-xs font-medium text-orange-600 dark:text-orange-400">
+                      AI NAG
                     </span>
                   </div>
                 )}
@@ -174,7 +189,40 @@ export function TaskCard({ task, index, boardId, columns }: TaskCardProps) {
               </div>
             </div>
 
-            {/* Priority Badge and AI Status */}
+            {/* AI Nag Message */}
+            {latestAIComment && (
+              <div className="mb-3 p-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded">
+                <div className="flex items-start gap-2">
+                  <MessageCircle className="w-4 h-4 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <div className="text-xs font-medium text-orange-700 dark:text-orange-300 mb-1">
+                      🤖 AI PROJECT MANAGER:
+                    </div>
+                    <div className="text-xs text-orange-600 dark:text-orange-400 italic">
+                      "{latestAIComment.content}"
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Blocker Reason */}
+            {/* Blocker Reason */}
+            {task.is_blocker && task.blocker_reason && (
+              <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <div className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">
+                      BLOCKER REASON:
+                    </div>
+                    <div className="text-xs text-red-600 dark:text-red-400">
+                      {task.blocker_reason}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="flex items-center justify-between mb-3">
               <Badge
                 variant="secondary"

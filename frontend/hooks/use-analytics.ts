@@ -75,6 +75,11 @@ export interface AuditResults {
       new_assignee: string;
       days_overdue: number;
     }>;
+    ai_comments?: Array<{
+      task_id: number;
+      task_title: string;
+      comment: string;
+    }>;
     statistics: {
       total_tasks: number;
       tasks_with_due_dates: number;

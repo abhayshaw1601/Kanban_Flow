@@ -58,6 +58,7 @@ class User(Base):
     created_boards = relationship("Board", back_populates="creator", lazy="select")
     board_memberships = relationship("BoardMember", back_populates="user", lazy="select")
     assigned_tasks = relationship("Task", back_populates="assignee", lazy="select")
+    comments = relationship("Comment", back_populates="author", lazy="select")
     
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', role='{self.role.value}')>"

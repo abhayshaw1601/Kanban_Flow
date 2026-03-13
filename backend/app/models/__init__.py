@@ -6,6 +6,7 @@ from .board_member import BoardMember
 from .column import Column
 from .task import Task, TaskPriority
 from .company import Company
+from .comment import Comment
 
 __all__ = [
     "User",
@@ -16,4 +17,5 @@ __all__ = [
     "Task",
     "TaskPriority",
     "Company",
+    "Comment",
 ]
