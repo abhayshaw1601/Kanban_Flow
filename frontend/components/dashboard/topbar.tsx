@@ -1,9 +1,10 @@
 'use client';
 
-import { Menu, Moon, Sun, LogOut } from 'lucide-react';
+import { Menu, Moon, Sun, LogOut, AlertTriangle } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,8 @@ import {
 import { apiClient } from '@/lib/api';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { useBlockerNotifications } from '@/hooks/use-blocker-notifications';
+import { useCurrentUser } from '@/hooks/use-current-user';
 
 interface TopBarProps {
   userName: string;
@@ -26,6 +29,11 @@ interface TopBarProps {
 export function TopBar({ userName, userEmail, userAvatar, onMenuClick }: TopBarProps) {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
+  const { data: currentUser } = useCurrentUser();
+  const { totalBlocked } = useBlockerNotifications();
+
+  // Only show blocker indicator for non-admin users
+  const shouldShowBlockerIndicator = currentUser && currentUser.role !== 'admin' && totalBlocked > 0;
 
   const getInitials = (name: string) => {
     return name
@@ -66,6 +74,19 @@ export function TopBar({ userName, userEmail, userAvatar, onMenuClick }: TopBarP
 
         {/* Spacer */}
         <div className="flex-1" />
+
+        {/* Blocker notification indicator */}
+        {shouldShowBlockerIndicator && (
+          <div className="flex items-center gap-2 px-3 py-1 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-full">
+            <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+            <span className="text-sm font-medium text-red-700 dark:text-red-300">
+              {totalBlocked} Blocked Task{totalBlocked > 1 ? 's' : ''}
+            </span>
+            <Badge className="bg-red-600 text-white text-xs px-1.5 py-0.5">
+              {totalBlocked}
+            </Badge>
+          </div>
+        )}
 
         {/* Dark mode toggle */}
         <Button

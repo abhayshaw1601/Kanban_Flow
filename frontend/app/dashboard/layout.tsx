@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { TopBar } from '@/components/dashboard/topbar';
+import { NotificationProvider } from '@/components/providers/notification-provider';
 import { useRouter } from 'next/navigation';
 import { Loading } from '@/components/ui/loading';
 
@@ -37,31 +38,33 @@ export default function DashboardLayout({
   const isAdmin = user.role === 'admin';
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar */}
-      <Sidebar
-        isAdmin={isAdmin}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-
-      {/* Main content */}
-      <div className="flex flex-col flex-1 overflow-hidden">
-        {/* TopBar */}
-        <TopBar
-          userName={user.name}
-          userEmail={user.email}
-          userAvatar={user.avatar}
-          onMenuClick={() => setSidebarOpen(true)}
+    <NotificationProvider>
+      <div className="flex h-screen overflow-hidden bg-background">
+        {/* Sidebar */}
+        <Sidebar
+          isAdmin={isAdmin}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
         />
 
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto bg-gradient-to-br from-blue-50/30 via-white/50 to-purple-50/30 dark:from-gray-900/30 dark:via-gray-800/50 dark:to-gray-900/30 p-6">
-          <div className="max-w-7xl mx-auto">
-            {children}
-          </div>
-        </main>
+        {/* Main content */}
+        <div className="flex flex-col flex-1 overflow-hidden">
+          {/* TopBar */}
+          <TopBar
+            userName={user.name}
+            userEmail={user.email}
+            userAvatar={user.avatar}
+            onMenuClick={() => setSidebarOpen(true)}
+          />
+
+          {/* Page content */}
+          <main className="flex-1 overflow-y-auto bg-gradient-to-br from-blue-50/30 via-white/50 to-purple-50/30 dark:from-gray-900/30 dark:via-gray-800/50 dark:to-gray-900/30 p-6">
+            <div className="max-w-7xl mx-auto">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </NotificationProvider>
   );
 }

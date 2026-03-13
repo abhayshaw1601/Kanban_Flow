@@ -5,7 +5,7 @@ import { Draggable } from '@hello-pangea/dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Calendar, ArrowRight, Brain, Sparkles } from 'lucide-react';
+import { Calendar, ArrowRight, Brain, Sparkles, AlertTriangle } from 'lucide-react';
 import { format, isPast } from 'date-fns';
 import { TaskModal } from './task-modal';
 import { useMoveTask } from '@/hooks/use-tasks';
@@ -135,27 +135,43 @@ export function TaskCard({ task, index, boardId, columns }: TaskCardProps) {
               snapshot.isDragging ? 'rotate-2 shadow-lg' : ''
             }`}
           >
-            {/* Task Title with AI Badge */}
+            {/* Task Title with AI Badge and Blocker Indicator */}
             <div className="flex items-start justify-between mb-2">
               <h4 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-2 flex-1">
                 {task.title}
               </h4>
-              {isAIHealthy && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleAIAnalysis}
-                  disabled={analyzeTask.isPending}
-                  className="h-6 w-6 p-0 ml-2 opacity-70 hover:opacity-100 transition-opacity bg-gradient-to-r from-purple-100 to-blue-100 hover:from-purple-200 hover:to-blue-200 border border-purple-200"
-                  title="Analyze with AI"
-                >
-                  {analyzeTask.isPending ? (
-                    <Brain className="h-3 w-3 animate-pulse text-purple-600" />
-                  ) : (
-                    <Sparkles className="h-3 w-3 text-purple-600" />
-                  )}
-                </Button>
-              )}
+              <div className="flex items-center gap-1 ml-2">
+                {/* Blocker Indicator */}
+                {task.is_blocker && (
+                  <div 
+                    className="flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/20 rounded-full"
+                    title={task.blocker_reason || 'Task marked as blocker'}
+                  >
+                    <AlertTriangle className="h-3 w-3 text-red-600 dark:text-red-400" />
+                    <span className="text-xs font-medium text-red-600 dark:text-red-400">
+                      BLOCKER
+                    </span>
+                  </div>
+                )}
+                
+                {/* AI Button */}
+                {isAIHealthy && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleAIAnalysis}
+                    disabled={analyzeTask.isPending}
+                    className="h-6 w-6 p-0 opacity-70 hover:opacity-100 transition-opacity bg-gradient-to-r from-purple-100 to-blue-100 hover:from-purple-200 hover:to-blue-200 border border-purple-200"
+                    title="Analyze with AI"
+                  >
+                    {analyzeTask.isPending ? (
+                      <Brain className="h-3 w-3 animate-pulse text-purple-600" />
+                    ) : (
+                      <Sparkles className="h-3 w-3 text-purple-600" />
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
 
             {/* Priority Badge and AI Status */}

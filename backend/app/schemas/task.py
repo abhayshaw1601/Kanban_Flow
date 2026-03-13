@@ -62,7 +62,7 @@ class TaskResponse(BaseModel):
     """
     Schema for task data in API responses.
     
-    Includes all task information with timestamps.
+    Includes all task information with timestamps and blocker status.
     """
     model_config = ConfigDict(from_attributes=True)
     
@@ -71,6 +71,8 @@ class TaskResponse(BaseModel):
     description: Optional[str] = None
     due_date: Optional[datetime] = None
     priority: str
+    is_blocker: bool = False
+    blocker_reason: Optional[str] = None
     order: int
     column_id: int
     assignee_id: Optional[int] = None

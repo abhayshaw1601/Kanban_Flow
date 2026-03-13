@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
@@ -22,6 +22,8 @@ class Task(Base):
         description: Optional detailed description (supports Markdown)
         due_date: Optional due date for the task
         priority: Task priority level (low, medium, high)
+        is_blocker: Boolean flag indicating if task is marked as a blocker
+        blocker_reason: Optional reason why task is marked as blocker
         order: Integer defining the display order within a column (0-indexed)
         column_id: Foreign key to the Column this task belongs to
         assignee_id: Optional foreign key to User assigned to this task
@@ -42,6 +44,8 @@ class Task(Base):
     description = Column(Text, nullable=True)  # Markdown content
     due_date = Column(DateTime, nullable=True)
     priority = Column(Enum(TaskPriority), default=TaskPriority.MEDIUM, nullable=False)
+    is_blocker = Column(Boolean, default=False, nullable=False)
+    blocker_reason = Column(String, nullable=True)
     order = Column(Integer, nullable=False)
     
     # Foreign keys
@@ -57,4 +61,4 @@ class Task(Base):
     assignee = relationship("User", back_populates="assigned_tasks")
     
     def __repr__(self):
-        return f"<Task(id={self.id}, title='{self.title}', priority='{self.priority.value}')>"
+        return f"<Task(id={self.id}, title='{self.title}', priority='{self.priority.value}', is_blocker={self.is_blocker})>"

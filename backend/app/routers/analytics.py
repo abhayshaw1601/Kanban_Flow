@@ -1,22 +1,24 @@
 """
-Analytics API endpoints for member performance tracking.
+Analytics API endpoints for member performance tracking and audit functionality.
 
-This module provides endpoints for analyzing member task completion statistics
-and performance metrics across boards.
+This module provides endpoints for analyzing member task completion statistics,
+performance metrics across boards, and audit functionality for overdue tasks.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import func, case
-from typing import Dict, Any
+from sqlalchemy import func, case, and_
+from typing import Dict, Any, List
+from datetime import datetime
 
 from ..core.database import get_db
-from ..core.deps import get_current_admin
+from ..core.deps import get_current_admin, get_current_user
 from ..models.user import User
 from ..models.task import Task
 from ..models.column import Column
 from ..models.board import Board
 from ..models.board_member import BoardMember
+from ..services.audit_service import AuditService
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 
@@ -229,4 +231,175 @@ async def get_team_overview(
     return {
         "team_members": team_overview,
         "total_members": len(team_overview)
+    }
+
+
+@router.post("/audit/run")
+async def run_audit(
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """
+    Run audit to check for overdue tasks and mark them as blockers (admin only).
+    
+    This endpoint:
+    1. Finds all tasks with due dates within 3 days or overdue
+    2. Excludes tasks in "done" columns
+    3. Marks them as blockers with appropriate reasons
+    4. Returns audit results and statistics
+    
+    Args:
+        db: Database session
+        admin: Current authenticated admin user
+        
+    Returns:
+        Dict containing audit results and statistics
+        
+    Raises:
+        HTTPException 403: If user is not an admin
+    """
+    audit_service = AuditService(db)
+    results = audit_service.run_audit()
+    
+    return {
+        "success": True,
+        "message": f"Audit completed. Marked {results['tasks_marked_as_blockers']} tasks as blockers.",
+        "results": results
+    }
+
+
+@router.get("/audit/pending-projects")
+async def get_pending_projects(
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """
+    Get all pending projects (tasks not in done columns) (admin only).
+    
+    Returns detailed information about all pending tasks including
+    due dates, assignees, and blocker status.
+    
+    Args:
+        db: Database session
+        admin: Current authenticated admin user
+        
+    Returns:
+        List of pending projects with details
+        
+    Raises:
+        HTTPException 403: If user is not an admin
+    """
+    audit_service = AuditService(db)
+    pending_projects = audit_service.get_pending_projects()
+    
+    return {
+        "pending_projects": pending_projects,
+        "total_pending": len(pending_projects)
+    }
+
+
+@router.post("/audit/clear-blockers")
+async def clear_all_blockers(
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """
+    Clear all blocker flags from tasks (admin only).
+    
+    Removes blocker status from all tasks. Useful for resetting
+    the audit state or clearing false positives.
+    
+    Args:
+        db: Database session
+        admin: Current authenticated admin user
+        
+    Returns:
+        Dict containing number of tasks cleared
+        
+    Raises:
+        HTTPException 403: If user is not an admin
+    """
+    audit_service = AuditService(db)
+    cleared_count = audit_service.clear_all_blockers()
+    
+    return {
+        "success": True,
+        "message": f"Cleared blocker status from {cleared_count} tasks.",
+        "tasks_cleared": cleared_count
+    }
+
+
+@router.get("/user/{user_id}/blocked-tasks")
+async def get_user_blocked_tasks(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get blocked tasks for a specific user.
+    
+    Users can only access their own blocked tasks unless they are admin.
+    
+    Args:
+        user_id: ID of the user to get blocked tasks for
+        db: Database session
+        current_user: Current authenticated user
+        
+    Returns:
+        Dict containing blocked tasks for the user
+        
+    Raises:
+        HTTPException 403: If user tries to access another user's tasks (non-admin)
+        HTTPException 404: If user not found
+    """
+    # Check permissions - users can only see their own blocked tasks, admins can see any
+    if current_user.role != 'admin' and current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only view your own blocked tasks"
+        )
+    
+    # Verify user exists
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id {user_id} not found"
+        )
+    
+    # Get blocked tasks for the user
+    blocked_tasks = db.query(Task).join(
+        Column, Task.column_id == Column.id
+    ).join(
+        Board, Column.board_id == Board.id
+    ).filter(
+        and_(
+            Task.assignee_id == user_id,
+            Task.is_blocker == True
+        )
+    ).all()
+    
+    # Format blocked tasks
+    blocked_tasks_data = []
+    for task in blocked_tasks:
+        days_until_due = None
+        if task.due_date:
+            days_until_due = (task.due_date - datetime.utcnow()).days
+        
+        blocked_tasks_data.append({
+            'task_id': task.id,
+            'title': task.title,
+            'board_name': task.column.board.name,
+            'column_name': task.column.name,
+            'priority': task.priority.value,
+            'due_date': task.due_date.isoformat() if task.due_date else None,
+            'days_until_due': days_until_due,
+            'blocker_reason': task.blocker_reason,
+            'is_overdue': days_until_due is not None and days_until_due < 0
+        })
+    
+    return {
+        "blocked_tasks": blocked_tasks_data,
+        "total_blocked": len(blocked_tasks_data),
+        "last_checked": datetime.utcnow().isoformat()
     }

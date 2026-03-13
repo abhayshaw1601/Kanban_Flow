@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Users, Settings, X } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SidebarProps {
@@ -26,6 +26,12 @@ export function Sidebar({ isAdmin, isOpen, onClose }: SidebarProps) {
       href: '/dashboard/team',
       label: 'Team',
       icon: Users,
+      adminOnly: true,
+    },
+    {
+      href: '/dashboard/audit',
+      label: 'Audit',
+      icon: Search,
       adminOnly: true,
     },
     {

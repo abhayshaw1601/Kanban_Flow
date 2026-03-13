@@ -9,6 +9,8 @@ export interface Task {
   description: string | null;
   due_date: string | null;  // Backend uses snake_case
   priority: 'low' | 'medium' | 'high';
+  is_blocker?: boolean;     // Optional for backward compatibility
+  blocker_reason?: string | null; // Optional for backward compatibility
   order: number;
   column_id: number;        // Backend uses snake_case
   assignee_id: number | null; // Backend uses snake_case
